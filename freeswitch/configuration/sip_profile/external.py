@@ -1,0 +1,43 @@
+import logging
+
+log = logging.getLogger(__name__)
+
+
+external_settings = {
+    'debug': '0',
+    'sip-trace': 'no',
+    'sip-capture': 'no',
+    'rfc2833-pt': '101',
+    'sip-port': '$${external_sip_port}',
+    'dailplan': 'XML',
+    'context': 'public',
+    'dtmf-duration': '2000',
+    'inbound-codec-prefs': '$${global_codec_prefs}',
+    'outbound-codec-prefs': '$${outbound_codec_prefs}',
+    'hold-music': '$${hold_music}',
+    'rtp-timer-name': 'soft',
+    'local-network-acl': 'localnet.auto',
+    'manage-presence': 'false',
+    'inbound-codec-negotiation': 'generous',
+    'nonce-ttl': '60',
+    'auth-calls': 'false',
+    'inbound-late-negotiation': 'true',
+    'inbound-zrtp-passthru': 'true',
+    'rtp-ip': '$${local_ip_v4}',
+    'sip-ip': '$${local_ip_v4}',
+    'ext-rtp-ip': 'auto-nat',
+    'ext-sip-ip': 'auto-nat',
+    'rtp-timeout-sec': '0',
+    'rtp-hold-timeout-sec': '0',
+    'tls': '$${external_ssl_enable}',
+    'tls-only': 'false',
+    'tls-bind-params': 'transport=tls',
+    'tls-sip-port': '$${external_tls_port}',
+    'tls-passphrase': '',
+    'tls-verify-date': 'true',
+    'tls-verify-policy': 'none',
+    'tls-verify-depth': '2',
+    'tls-verify-in-subjects': '',
+    'tls-version': '$${sip_tls_version}',
+    # 'wss-binding': ':7443',
+}

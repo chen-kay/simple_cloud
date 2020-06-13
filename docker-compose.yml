@@ -1,0 +1,26 @@
+version: "3"
+
+volumes:
+  static:
+  database:
+
+services:
+  cloud_ky:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DJANGO_ENV: product
+    environment:
+      DJANGO_ENV: product
+    image: cloud_ky
+    container_name: cloud_ky
+    working_dir: /home/docker/cloud
+    volumes:
+      - ./logs:/home/docker/cloud/logs
+      - ./views:/home/docker/cloud/views
+    # env_file:
+    #   - .envs/.production
+    ports:
+      - "11113:8000"
+    command: uwsgi --ini uwsgi.ini

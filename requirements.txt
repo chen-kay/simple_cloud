@@ -1,0 +1,24 @@
+django
+djangorestframework
+djangorestframework-recursive
+django-filter 
+django-redis
+django-simple-history
+mysqlclient
+
+# django-environ uwsgi
+django-environ
+# django-restframework swagger
+drf-yasg
+# FreeSWITCH ESL
+# python-ESL
+# uwsgi
+
+lxml
+
+# File
+pandas
+xlrd
+# format
+flake8
+yapf
