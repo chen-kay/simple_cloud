@@ -9,12 +9,14 @@ from rest_framework.views import APIView
 from cloud.fs.event.callcenter.agent import Agent
 from cloud.fs.models import CallResult
 from cloud.fs.models import ServiceBackends as _backends
+from cloud.fs.redis import monitor
 
 
 class cdrHandle:
     def __init__(self, uuid, data):
         self.direction = ''
         self.result_id = None  # 资料id
+        self.project_id = None
         self.mobile = ''  # 被叫号码
         self.duration = 0  # 接通时长
         self.billsec = 0  # 通话时长
@@ -43,6 +45,7 @@ class cdrHandle:
             self.caller_profile = self.callflow.find('caller_profile')
 
             self.result_id = self.get_variables('sip_h_X-Phoneid', None)
+            self.project_id = self.get_variables('sip_h_X-Proid', None)
 
             self.direction = self.get_variables('direction')
 
@@ -62,6 +65,8 @@ class cdrHandle:
         except Exception as e:
             print(e)
             self.xml = None
+        finally:
+            monitor.on_end(self.project_id, self.status)
 
     def generate_time(self):
         self.duration = self.get_variables('duration')

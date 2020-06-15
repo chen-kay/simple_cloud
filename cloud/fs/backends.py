@@ -1,57 +1,38 @@
 import math
-from queue import Queue
 
+from cloud.fs.redis import call, domain, gateway, project, user
 from cloud.fs.settings import fs_settings
-
-from .models import Datum, Domain, Gateway, Project, User
-
-datum_queue = Queue()
 
 
 class ServiceBackend:
-    user = User
-    gateway = Gateway
-    project = Project
-    domain = Domain
-    datum = Datum
+    domain = domain
+    gateway = gateway
+    user = user
+    project = project
+    call = call
 
     def get_service_domain(self):
         '''获取系统企业标识
         return: [{'name':''}]
         '''
-        return self.domain.objects.all().values('name')
+        return self.domain.get_domain()
 
     def get_service_gateway(self, domain=None):
         '''获取系统服务网关 - 系统落地网关
         '''
         if domain:
-            try:
-                gw = self.gateway.objects.get(domain=domain)
-                return gw.to_dict()
-            except Exception:
-                return None
-        return [r.to_dict() for r in self.gateway.objects.all()]
+            return self.gateway.gat_domain_gateway(domain)
+        return self.gateway.get_gateway()
 
     def get_service_directory(self, username):
         '''获取系统用户 - 可注册电话
         '''
-        try:
-            user, domain = username.split('@')
-            ins = self.user.objects.get(username=user, domain__name=domain)
-            return ins.to_dict()
-        except Exception as e:
-            print(e)
-            return None
+        return self.user.get_user(username)
 
     def get_service_project(self, project_id):
         '''获取系统项目业务 - 系统自动外呼队列
         '''
-        try:
-            ins = self.project.objects.get(id=project_id)
-            return ins.to_dict()
-        except Exception as e:
-            print(e)
-            return None
+        return self.project.get_project(project_id)
 
     def get_service_mobile(self, mobile_id):
         '''获取呼叫号码
@@ -66,27 +47,28 @@ class ServiceBackend:
     def get_compute_nums(self, project_id, callmax=0, ratio=0):
         '''计算当前外呼数量
         '''
-        ring = 0
-        queue = 0
-        answer = 0
-        free = 0
+        ring = self.call.get_ring(project_id)
+        queue = self.call.get_queue(project_id)
+        answer = self.call.get_answer(project_id)
+        sign_out = self.user.get_sign_out(project_id)
         return self._compute_call_nums(ring=ring,
                                        queue=queue,
                                        answer=answer,
-                                       free=free,
+                                       free=sign_out,
                                        callmax=callmax,
                                        ratio=ratio)
 
     def get_extract_datum(self, project_id):
         '''提取项目资料 -> 用于自动外呼执行呼叫
         '''
-        if datum_queue.empty():
-            for r in self.datum.objects.filter(project=project_id):
-                datum_queue.put((r.id, r.mobile))
-        try:
-            return datum_queue.get_nowait()
-        except KeyError:
-            return None
+        # if datum_queue.empty():
+        #     for r in self.datum.objects.filter(project=project_id):
+        #         datum_queue.put((r.id, r.mobile))
+        # try:
+        #     return datum_queue.get_nowait()
+        # except KeyError:
+        #     return None
+        return None
 
     def change_datum_result(self,
                             phoneId,

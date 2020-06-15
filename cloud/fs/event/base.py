@@ -7,19 +7,23 @@ _DEFAULT_PWD = fs_settings.DEFAULT_EVENT_PASSWD
 
 
 class BaseEvent:
-    def __init__(self):
-        self.conn = self.__connection()
+    @property
+    def conn(self):
+        return self.get_connection()
 
-    def __connection(self):
-        self.conn_error = None
+    def get_connection(self):
+        cache = '__cache_conn'
+        conn = getattr(self, cache, None)
+        if not conn:
+            setattr(self, cache, self._get_connection())
+        return getattr(self, cache)
+
+    def _get_connection(self):
         try:
             return get_connection(_DEFAULT_IP, _DEFAULT_PORT, _DEFAULT_PWD)
         except Exception as e:
-            self.conn_error = str(e)
+            print(e)
             return None
-
-    def re_connection(self):
-        self.conn = self.__connection()
 
     def send(self, msg, bgapi=False, *args, **kwargs):
         conn = self.conn
