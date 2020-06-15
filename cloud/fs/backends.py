@@ -1,4 +1,7 @@
+import math
 from queue import Queue
+
+from cloud.fs.settings import fs_settings
 
 from .models import Datum, Domain, Gateway, Project, User
 
@@ -12,38 +15,57 @@ class ServiceBackend:
     domain = Domain
     datum = Datum
 
-    def get_service_directory(self, domain):
-        '''获取系统用户 - 可注册电话
+    def get_service_domain(self):
+        '''获取系统企业标识
+        return: [{'name':''}]
         '''
-        return self.user.objects.filter(domain=domain).values(
-            'domain', 'username', 'password')
+        return self.domain.objects.all().values('name')
 
     def get_service_gateway(self, domain=None):
         '''获取系统服务网关 - 系统落地网关
         '''
         if domain:
             try:
-                return self.gateway.objects.get(domain=domain).gateway_name
+                gw = self.gateway.objects.get(domain=domain)
+                return gw.to_dict()
             except Exception:
                 return None
-        return self.gateway.objects.all().values('gateway_name', 'username',
-                                                 'password', 'realm',
-                                                 'register')
+        return [r.to_dict() for r in self.gateway.objects.all()]
 
-    def get_service_domain(self):
-        '''获取系统企业标识
+    def get_service_gateway_name(self, domain):
+        '''获取系统服务网关 - 系统企业网关名称
         '''
-        return self.domain.objects.all().values('name')
+        gw = self.get_service_gateway_name(domain)
+        return gw.get('gateway_name')
+
+    def get_service_directory(self, username):
+        '''获取系统用户 - 可注册电话
+        '''
+        try:
+            user, domain = username.split('@')
+            ins = self.user.objects.get(username=user, domain__name=domain)
+            return ins.to_dict()
+        except Exception as e:
+            print(e)
+            return None
+
+    def get_service_userid(self, username):
+        '''获取系统用户id
+        '''
+        try:
+            user = self.get_service_directory(username)
+            return user.get('id')
+        except Exception as e:
+            print(e)
+            return None
 
     def get_service_queue(self, queue_name=None):
-        if not queue_name:
-            return None
+        '''获取系统队列
+        queue_name: ${domain}_${project_id}
+        '''
         try:
-            domain, _id = queue_name.split('_')
-            queryset = self.project.objects.filter(flag=2,
-                                                   domain=domain,
-                                                   id=_id)
-            return queryset.values('queue_name')
+            _, _id = queue_name.split('_')
+            return self.get_service_project(_id)
         except Exception:
             return None
 
@@ -51,40 +73,35 @@ class ServiceBackend:
         '''获取系统项目业务 - 系统自动外呼队列
         '''
         try:
-            project = self.project.objects.get(id=project_id)
-            return {
-                'id': project.pk,
-                'domain': project.domain,
-                'max_calling': project.max_calling,
-                'ratio': project.ratio,
-                'status': project.status
-            }
+            ins = self.project.objects.get(id=project_id)
+            return ins.to_dict()
         except Exception as e:
             print(e)
             return None
 
-    def handle_cdr_save(self, uuid, cdr):
-        '''通话结束返回 处理话单
-        '''
-
     def get_service_mobile(self, mobile_id):
         '''获取呼叫号码
         '''
-        return mobile_id
-
-    def check_project_status(self, project_id):
-        '''判断项目执行状态 -> 用于自动外呼停止外呼线程
-        '''
         try:
-            project = self.project.objects.get(id=project_id)
-            return project.status
-        except Exception:
-            return None
+            ins = self.datum.objects.get(pk=mobile_id)
+            return (ins.mobile, ins.project.id)
+        except Exception as e:
+            print(e)
+            return None, None
 
-    def get_compute_nums(self, project_id):
+    def get_compute_nums(self, project_id, callmax=0, ratio=0):
         '''计算当前外呼数量
         '''
-        return 1
+        ring = 0
+        queue = 0
+        answer = 0
+        free = 0
+        return self._compute_call_nums(ring=ring,
+                                       queue=queue,
+                                       answer=answer,
+                                       free=free,
+                                       callmax=callmax,
+                                       ratio=ratio)
 
     def get_extract_datum(self, project_id):
         '''提取项目资料 -> 用于自动外呼执行呼叫
@@ -116,3 +133,35 @@ class ServiceBackend:
             return datum.save(update_fields=['status', 'callsec', 'recording'])
         except Exception:
             return None
+
+    def handle_cdr_save(self, uuid, cdr):
+        '''通话结束返回 处理话单
+        '''
+
+    def _compute_call_nums(self,
+                           ring=0,
+                           queue=0,
+                           answer=0,
+                           free=0,
+                           callmax=0,
+                           ratio=0):
+        '''计算待呼叫量
+        '''
+        if free == 0:
+            return 0
+        all_nums = ring + queue + answer
+        if all_nums > callmax:
+            return 0
+        ratio_nums = math.ceil(free * ratio)
+        if ring > ratio_nums:
+            return 0
+        free_nums = ratio_nums - ring
+        max_nums = callmax - all_nums
+        call_nums = max_nums if free_nums > max_nums else free_nums
+
+        _default_rate = self.rate
+        return call_nums if call_nums > _default_rate else _default_rate
+
+    @property
+    def rate(self):
+        return fs_settings.DEFAULT_AUTO_CALL_RATE

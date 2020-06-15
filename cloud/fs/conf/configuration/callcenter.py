@@ -1,26 +1,24 @@
 from cloud.fs.conf.base import BaseXml
-from cloud.fs.models import service_get_queue
+from cloud.fs.models import ServiceBackends as _backends
+from cloud.fs.settings import fs_settings
 from freeswitch.configuration import Section
 from freeswitch.configuration.queue import Queue
-from cloud.fs.settings import fs_settings
 
 
 class Callcenter(BaseXml):
     def generate_xml_conf(self, data):
         queues = Section('queues')
-        for row in data:
-            queue_name = row.get('queue_name', None)
-            queue = Queue(name=queue_name)
-            for name, value in self.params.items():
-                queue.addParameter(name, value)
-            queues.addVariable(queue)
+        queue_name = data.get('queue_name', None)
+        queue = Queue(name=queue_name)
+        for name, value in self.params.items():
+            queue.addParameter(name, value)
+        queues.addVariable(queue)
         self.xml.addSection(queues)
 
     def get_xml_data(self):
-        print(self.request.data)
         name = self.request.data.get('CC-Queue', None)
         if name:
-            return service_get_queue(name)
+            return _backends.service_get_queue(name)
         return None
 
     @property

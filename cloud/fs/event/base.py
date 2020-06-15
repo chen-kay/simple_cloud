@@ -11,7 +11,12 @@ class BaseEvent:
         self.conn = self.__connection()
 
     def __connection(self):
-        return get_connection(_DEFAULT_IP, _DEFAULT_PORT, _DEFAULT_PWD)
+        self.conn_error = None
+        try:
+            return get_connection(_DEFAULT_IP, _DEFAULT_PORT, _DEFAULT_PWD)
+        except Exception as e:
+            self.conn_error = str(e)
+            return None
 
     def re_connection(self):
         self.conn = self.__connection()
@@ -20,8 +25,8 @@ class BaseEvent:
         conn = self.conn
         last_msg = None
         if not conn:
-            return 'get_connection(_, `{0}`, `{1}`) Error'.format(
-                _DEFAULT_PORT, _DEFAULT_PWD), False
+            return 'get_connection(_, `{0}`, `{1}`) Error{2}'.format(
+                _DEFAULT_PORT, _DEFAULT_PWD, self.conn_error), False
         try:
             if conn.connected():
                 res = None

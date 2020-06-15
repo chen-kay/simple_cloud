@@ -3,6 +3,7 @@ from django.test.signals import setting_changed
 from django.utils.module_loading import import_string
 
 DEFAULTS = {
+    'DEFAULT_AUTO_CALL_RATE': 50,
     'DEFAULT_SERVICE_BACKENDS': ['cloud.fs.backends.ServiceBackend'],
     'DEFAULT_RECORDING_PATH': '/home',
     'DEFAULT_EXTERNAL_SIP_PORT': '6060',

@@ -1,5 +1,5 @@
 from cloud.fs.conf.base import BaseXml
-from cloud.fs.models import service_get_domain, service_get_gateway
+from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.settings import fs_settings
 from freeswitch.configuration import Section
 from freeswitch.configuration.sip_profile import Profile
@@ -22,7 +22,7 @@ class Sofia(BaseXml):
         self.xml.addSection(self.profiles)
 
     def get_xml_data(self):
-        return service_get_gateway(), service_get_domain()
+        return _backends.service_get_gateway(), _backends.service_get_domain()
 
     def generate_external_xml(self, data):
         '''

@@ -20,7 +20,7 @@ from django.urls import path
 from rest_framework import exceptions, serializers, viewsets
 from rest_framework.response import Response
 
-from cloud.fs import models
+from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.event import utils
 from cloud.fs.event.callcenter import agent
 from cloud.fs.thread import fs_thread
@@ -135,7 +135,7 @@ class QueueStart(BaseViews):
     serializer_class = EmptyFields
 
     def update(self, request, pk, *args, **kwargs):
-        ins = models.service_get_project(pk)
+        ins = _backends.service_get_project(pk)
         if not ins:
             return Response({'msg': '项目不存在', 'ok': False})
         fs_thread.start_queue_thread(ins.get('domain'), ins.get('id'))
@@ -148,7 +148,7 @@ class QueueStop(BaseViews):
     serializer_class = EmptyFields
 
     def update(self, request, pk, *args, **kwargs):
-        ins = models.service_get_project(pk)
+        ins = _backends.service_get_project(pk)
         if not ins:
             return Response({'msg': '项目不存在', 'ok': False})
         fs_thread.stop_queue_thread(ins.get('domain'), ins.get('id'))
@@ -163,13 +163,14 @@ class TestAutoCaller(BaseViews):
         phoneId = request.data.get('phoneId', None)
         if not mobile or not phoneId:
             raise exceptions.NotAcceptable(detail='请求不被允许')
-        ins = models.service_get_project(pk)
+        ins = _backends.service_get_project(pk)
         handle = utils.Utils()
         if not ins:
             return Response({'msg': '项目不存在', 'ok': False})
         queue_name = '{0}_{1}'.format(ins.get('domain'), ins.get('id'))
         res, result = handle.originate_queue_test(mobile,
                                                   queue_name,
+                                                  domain=ins.get('domain'),
                                                   phoneId=phoneId)
         return Response({'data': res, 'ok': result})
 
