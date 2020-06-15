@@ -32,12 +32,6 @@ class ServiceBackend:
                 return None
         return [r.to_dict() for r in self.gateway.objects.all()]
 
-    def get_service_gateway_name(self, domain):
-        '''获取系统服务网关 - 系统企业网关名称
-        '''
-        gw = self.get_service_gateway_name(domain)
-        return gw.get('gateway_name')
-
     def get_service_directory(self, username):
         '''获取系统用户 - 可注册电话
         '''
@@ -47,26 +41,6 @@ class ServiceBackend:
             return ins.to_dict()
         except Exception as e:
             print(e)
-            return None
-
-    def get_service_userid(self, username):
-        '''获取系统用户id
-        '''
-        try:
-            user = self.get_service_directory(username)
-            return user.get('id')
-        except Exception as e:
-            print(e)
-            return None
-
-    def get_service_queue(self, queue_name=None):
-        '''获取系统队列
-        queue_name: ${domain}_${project_id}
-        '''
-        try:
-            _, _id = queue_name.split('_')
-            return self.get_service_project(_id)
-        except Exception:
             return None
 
     def get_service_project(self, project_id):

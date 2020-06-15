@@ -27,7 +27,8 @@ class ServiceBackends:
     def service_get_gateway_name(cls, domain=None):
         '''获取企业网关名称
         '''
-        return _get_backends('get_service_gateway_name', domain=domain)
+        gateway = cls.service_get_gateway(domain=domain)
+        return gateway.get('gateway_name') if gateway else None
 
     @classmethod
     def service_get_directory(cls, username):
@@ -39,19 +40,24 @@ class ServiceBackends:
     def service_get_userid(cls, username):
         '''
         '''
-        return _get_backends('get_service_userid', username)
-
-    @classmethod
-    def service_get_queue(cls, queue_name):
-        '''获取项目队列信息
-        '''
-        return _get_backends('get_service_queue', queue_name)
+        user = cls.service_get_directory(username)
+        return user.get('id') if user else None
 
     @classmethod
     def service_get_project(cls, project_id):
         '''获取项目队列信息
         '''
         return _get_backends('get_service_project', project_id)
+
+    @classmethod
+    def service_get_queue(cls, queue_name):
+        '''获取项目队列信息
+        '''
+        try:
+            _, _id = queue_name.split('_')
+            return cls.service_get_project(_id)
+        except Exception:
+            return None
 
     @classmethod
     def service_get_mobile(cls, mobile_id):
