@@ -38,11 +38,11 @@ class Status(threading.Thread):
             elif event_name == 'CHANNEL_ANSWER':
                 '''设置已接通
                 '''
-                self.call.set_queue(project_id, phone_id)
+                self.call.set_answer(project_id, phone_id)
             elif event_name == 'CHANNEL_BRIDGE':
                 '''设置通话中
                 '''
-                self.call.set_answer(project_id, phone_id)
+                self.call.set_queue(project_id, phone_id)
             elif event_name == 'CHANNEL_HANGUP':
                 '''设置挂机
                 '''

@@ -6,9 +6,8 @@ from freeswitch.configuration.queue import Queue
 
 
 class Callcenter(BaseXml):
-    def generate_xml_conf(self, data):
+    def generate_xml_conf(self, queue_name):
         queues = Section('queues')
-        queue_name = data.get('queue_name', None)
         queue = Queue(name=queue_name)
         for name, value in self.params.items():
             queue.addParameter(name, value)
@@ -18,7 +17,8 @@ class Callcenter(BaseXml):
     def get_xml_data(self):
         name = self.request.data.get('CC-Queue', None)
         if name:
-            return _backends.service_get_queue(name)
+            if _backends.service_get_queue(name):
+                return name
         return None
 
     @property

@@ -1,5 +1,7 @@
 '''用户相关
 '''
+import json
+
 from .base import BaseRedis
 
 
@@ -14,5 +16,8 @@ class UserRedis(BaseRedis):
         return self.redis.scard(sign_out)
 
     def get_user(self, username):
-        user = self.user.format(username=username)
-        return self.redis.hget(user)
+        try:
+            res = self.redis.get(self.user.format(username=username))
+            return json.loads(res)
+        except Exception:
+            return {}

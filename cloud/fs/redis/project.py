@@ -1,5 +1,7 @@
 '''项目相关
 '''
+import json
+
 from .base import BaseRedis
 
 
@@ -10,9 +12,19 @@ class ProjectRedis(BaseRedis):
     datum = 'list_{project_id}'
 
     def get_project(self, project_id):
-        project = self.project.format(project_id=project_id)
-        return self.redis.hget(project)
+        try:
+            res = self.redis.get(self.project.format(project_id=project_id))
+            return json.loads(res)
+        except Exception:
+            return {}
 
-    def get_datum_list(self, project_id):
-        datum = self.datum.format(project_id=project_id)
-        return self.redis.lpop(datum)
+    def get_datum(self, project_id):
+        try:
+            res = self.redis.lpop(self.datum.format(project_id=project_id))
+            data = json.loads(res)
+            return data.get('id'), data.get('mobile')
+        except Exception:
+            return None, None
+
+    def get_datum_info(self, mobile_id):
+        pass

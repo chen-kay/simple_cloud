@@ -34,24 +34,24 @@ class CallRedis(BaseRedis):
         ring = self.ring.format(project_id=project_id)
         self.redis.sadd(ring, phone_id)
 
-    def set_queue(self, project_id, phone_id):
-        '''设置队列
-        '''
-        queue = self.queue.format(project_id=project_id)
-        self.redis.sadd(queue, phone_id)
-
     def set_answer(self, project_id, phone_id):
-        '''设置接通中
+        '''设置客户接通
         '''
         answer = self.answer.format(project_id=project_id)
         self.redis.sadd(answer, phone_id)
+
+    def set_queue(self, project_id, phone_id):
+        '''设置坐席接通
+        '''
+        queue = self.queue.format(project_id=project_id)
+        self.redis.sadd(queue, phone_id)
 
     def clear_redis(self, project_id, phone_id):
         '''清除redis
         '''
         ring = self.ring.format(project_id=project_id)
-        queue = self.queue.format(project_id=project_id)
         answer = self.answer.format(project_id=project_id)
+        queue = self.queue.format(project_id=project_id)
         self.redis.srem(ring, phone_id)
         self.redis.srem(queue, phone_id)
         self.redis.srem(answer, phone_id)

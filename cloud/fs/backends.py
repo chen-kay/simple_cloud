@@ -15,7 +15,8 @@ class ServiceBackend:
         '''获取系统企业标识
         return: [{'name':''}]
         '''
-        return self.domain.get_domain()
+        data = self.domain.get_domain()
+        return data
 
     def get_service_gateway(self, domain=None):
         '''获取系统服务网关 - 系统落地网关
@@ -37,12 +38,7 @@ class ServiceBackend:
     def get_service_mobile(self, mobile_id):
         '''获取呼叫号码
         '''
-        try:
-            ins = self.datum.objects.get(pk=mobile_id)
-            return (ins.mobile, ins.project.id)
-        except Exception as e:
-            print(e)
-            return None, None
+        return self.project.get_datum_info(mobile_id)
 
     def get_compute_nums(self, project_id, callmax=0, ratio=0):
         '''计算当前外呼数量
@@ -61,14 +57,7 @@ class ServiceBackend:
     def get_extract_datum(self, project_id):
         '''提取项目资料 -> 用于自动外呼执行呼叫
         '''
-        # if datum_queue.empty():
-        #     for r in self.datum.objects.filter(project=project_id):
-        #         datum_queue.put((r.id, r.mobile))
-        # try:
-        #     return datum_queue.get_nowait()
-        # except KeyError:
-        #     return None
-        return None
+        return self.project.get_datum(project_id)
 
     def change_datum_result(self,
                             phoneId,

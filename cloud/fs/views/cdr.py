@@ -7,12 +7,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from cloud.fs.event.callcenter.agent import Agent
+from cloud.fs.event.callcenter.queue import Queue
 from cloud.fs.models import CallResult
 from cloud.fs.models import ServiceBackends as _backends
-from cloud.fs.redis import monitor
+from cloud.fs.redis import call, monitor
 
 
 class cdrHandle:
+    agent = Agent()
+    queue = Queue()
+
     def __init__(self, uuid, data):
         self.direction = ''
         self.result_id = None  # 资料id
@@ -79,7 +83,6 @@ class cdrHandle:
 
     def generate_profile(self):
         self.caller_id_name = self.get_profile('caller_id_name')
-        print(self.caller_id_name)
         self.caller_id_number = self.get_profile('caller_id_number')
         self.callee_id_name = self.get_profile('callee_id_name')
         self.callee_id_number = self.get_profile('callee_id_number')
@@ -110,6 +113,8 @@ class cdrHandle:
                 if self.bridge_time:
                     diff = (self.end_time - self.bridge_time).seconds
                     self.callsec = diff if diff else 1
+            if self.check_end():
+                self.unload_queue(self.queue_name)
 
     def get_unquote(self, key):
         recording = self.get_variables(key)
@@ -121,7 +126,22 @@ class cdrHandle:
     def sign_out(self, username):
         '''坐席签出
         '''
-        Agent().sign_out(username)
+        self.agent.sign_out(username)
+
+    def check_end(self):
+        if not self.project_id:
+            return False
+        ring = call.get_ring(self.project_id)
+        answer = call.get_ring(self.project_id)
+        queue = call.get_ring(self.project_id)
+        if ring == 0 and answer == 0 and queue == 0:
+            return True
+        return False
+
+    def unload_queue(self, queue_name):
+        '''卸载项目
+        '''
+        self.queue.unload(queue_name)
 
     def get_hangup_source(self):
         hangup_source = ''

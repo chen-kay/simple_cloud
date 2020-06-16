@@ -49,6 +49,6 @@ class FsThread(threading.Thread):
 
 
 fs_thread = FsThread()
-fs_thread.start()
+# fs_thread.start()
 
-fs_thread.start_status_thead()
+# fs_thread.start_status_thead()
