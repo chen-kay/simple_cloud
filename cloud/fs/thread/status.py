@@ -29,20 +29,21 @@ class Status(threading.Thread):
         event_name = e.getHeader('Event-Name')
         phone_id = e.getHeader('variable_sip_h_X-Phoneid')
         project_id = e.getHeader('variable_sip_h_X-Proid')
-        if phone_id and project_id:
-            if event_name == 'CHANNEL_PROGRESS':
+        profile = e.getHeader('variable_sofia_profile_name')
+        if phone_id and project_id and profile == 'external':
+            if event_name == 'CHANNEL_CREATE':
                 '''设置振铃中
                 '''
-                self.call.set_ring(phone_id, project_id)
+                self.call.set_ring(project_id, phone_id)
             elif event_name == 'CHANNEL_ANSWER':
                 '''设置已接通
                 '''
-                self.call.set_queue(phone_id, project_id)
+                self.call.set_queue(project_id, phone_id)
             elif event_name == 'CHANNEL_BRIDGE':
                 '''设置通话中
                 '''
-                self.call.set_answer(phone_id, project_id)
+                self.call.set_answer(project_id, phone_id)
             elif event_name == 'CHANNEL_HANGUP':
                 '''设置挂机
                 '''
-                self.call.clear_redis(phone_id, project_id)
+                self.call.clear_redis(project_id, phone_id)

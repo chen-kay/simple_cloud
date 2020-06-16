@@ -7,8 +7,7 @@ class ESLEvent(BaseEvent):
         if conn and conn.connected:
             conn.events(
                 "plain",
-                "CHANNEL_PROGRESS CHANNEL_ANSWER CHANNEL_BRIDGE CHANNEL_HANGUP"
-            )
+                "CHANNEL_CREATE CHANNEL_ANSWER CHANNEL_BRIDGE CHANNEL_HANGUP")
             try:
                 while True:
                     e = conn.recvEvent()
