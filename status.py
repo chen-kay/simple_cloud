@@ -22,7 +22,7 @@ class BaseRedis:
 
     def _get_redis_connection(self):
         try:
-            pool = redis.ConnectionPool(host='49.232.19.228',
+            pool = redis.ConnectionPool(host='127.0.0.1',
                                         port=6379,
                                         password='TP+tp13579')
             return redis.Redis(connection_pool=pool)
@@ -34,9 +34,9 @@ class BaseRedis:
 class CallRedis(BaseRedis):
     '''通话相关redis
     '''
-    ring = 'test-{project_id}'
-    queue = 'test-{project_id}'
-    answer = 'test-{project_id}'
+    ring = 'test-ring-{project_id}'
+    queue = 'test-queue-{project_id}'
+    answer = 'test-answer-{project_id}'
 
     def get_ring(self, project_id):
         '''获取振铃中
@@ -45,13 +45,13 @@ class CallRedis(BaseRedis):
         return self.redis.scard(ring)
 
     def get_queue(self, project_id):
-        '''获取振铃中
+        '''获取队列中
         '''
         queue = self.queue.format(project_id=project_id)
         return self.redis.scard(queue)
 
     def get_answer(self, project_id):
-        '''获取振铃中
+        '''获取接通
         '''
         answer = self.answer.format(project_id=project_id)
         return self.redis.scard(answer)
@@ -67,22 +67,44 @@ class CallRedis(BaseRedis):
         '''
         queue = self.queue.format(project_id=project_id)
         self.redis.sadd(queue, phone_id)
+        self.srem_ring(project_id, phone_id)
+        self.srem_answer(project_id, phone_id)
 
     def set_answer(self, project_id, phone_id):
         '''设置接通中
         '''
         answer = self.answer.format(project_id=project_id)
         self.redis.sadd(answer, phone_id)
+        self.srem_ring(project_id, phone_id)
+        self.srem_queue(project_id, phone_id)
+
+    def srem_ring(self, project_id, phone_id):
+        ring = self.ring.format(project_id=project_id)
+        self.redis.srem(ring, phone_id)
+
+    def srem_queue(self, project_id, phone_id):
+        queue = self.queue.format(project_id=project_id)
+        self.redis.srem(queue, phone_id)
+
+    def srem_answer(self, project_id, phone_id):
+        answer = self.answer.format(project_id=project_id)
+        self.redis.srem(answer, phone_id)
 
     def clear_redis(self, project_id, phone_id):
         '''清除redis
         '''
-        ring = self.ring.format(project_id=project_id)
-        queue = self.queue.format(project_id=project_id)
-        answer = self.answer.format(project_id=project_id)
-        self.redis.srem(ring, phone_id)
-        self.redis.srem(queue, phone_id)
-        self.redis.srem(answer, phone_id)
+        self.srem_ring(project_id, phone_id)
+        self.srem_answer(project_id, phone_id)
+        self.srem_queue(project_id, phone_id)
+
+    def clear_all(self):
+        self._clear_cache(self.ring.format(project_id='*'))
+        self._clear_cache(self.queue.format(project_id='*'))
+        self._clear_cache(self.answer.format(project_id='*'))
+
+    def _clear_cache(self, name):
+        for key in self.redis.scan_iter(name):
+            self.redis.delete(key.decode())
 
 
 def get_connection(ip, port, passwd):
@@ -108,7 +130,7 @@ class BaseEvent:
 
     def _get_connection(self):
         try:
-            return get_connection('49.232.19.228', 8021, 'ClueCon')
+            return get_connection('127.0.0.1', 8021, 'ClueCon')
         except Exception as e:
             print(e)
             return None
@@ -151,7 +173,6 @@ class ESLEvent(BaseEvent):
             try:
                 while True:
                     e = conn.recvEvent()
-                    print(e)
                     if e and callback:
                         callback(e)
             except Exception as e:
@@ -181,39 +202,37 @@ class Status(threading.Thread):
         phone_id = e.getHeader('variable_sip_h_X-Phoneid')
         project_id = e.getHeader('variable_sip_h_X-Proid')
         profile = e.getHeader('variable_sofia_profile_name')
-        print(event_name, project_id, phone_id)
+        # print(event_name, project_id, phone_id)
         logging.debug(e.serialize())
         if phone_id and project_id and profile == 'external':
             if event_name == 'CHANNEL_CREATE':
                 '''设置振铃中
                 '''
-            # if event_name == 'CHANNEL_PROGRESS':
-            #     '''设置振铃中
-            #     '''
-            #     self.call.set_ring(phone_id, project_id)
+                self.call.set_ring(project_id, phone_id)
             elif event_name == 'CHANNEL_ANSWER':
                 '''设置已接通
                 '''
-                self.call.set_queue(phone_id, project_id)
+                self.call.set_answer(project_id, phone_id)
             elif event_name == 'CHANNEL_BRIDGE':
                 '''设置通话中
                 '''
-                self.call.set_answer(phone_id, project_id)
+                self.call.set_queue(project_id, phone_id)
             elif event_name == 'CHANNEL_HANGUP':
                 '''设置挂机
                 '''
-                self.call.clear_redis(phone_id, project_id)
+                self.call.clear_redis(project_id, phone_id)
 
 
 logging.basicConfig(filename='test_socket.log', level=logging.DEBUG)
 
 thread = Status()
-thread.start()
 call = thread.call
+call.clear_all()
+thread.start()
 while True:
-    ring = call.get_ring(10)
-    answer = call.get_answer(10)
-    queue = call.get_queue(10)
+    ring = call.get_ring(854)
+    answer = call.get_answer(854)
+    queue = call.get_queue(854)
     print(ring, answer, queue)
 
     sleep(1)
