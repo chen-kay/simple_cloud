@@ -68,6 +68,7 @@ class MonitorRedis(BaseRedis):
     def clear_expired(self, name):
         tt = int(time.time())
         for key in self.redis.scan_iter(name):
+            key = key.decode()
             raw = self.redis.lindex(key, index=0)
             if int(raw) < tt - self.expired_time:
                 self.redis.lpop(key)
