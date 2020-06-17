@@ -39,19 +39,41 @@ class CallRedis(BaseRedis):
         '''
         answer = self.answer.format(project_id=project_id)
         self.redis.sadd(answer, phone_id)
+        self.srem_ring(project_id, phone_id)
+        self.srem_queue(project_id, phone_id)
 
     def set_queue(self, project_id, phone_id):
         '''设置坐席接通
         '''
         queue = self.queue.format(project_id=project_id)
         self.redis.sadd(queue, phone_id)
+        self.srem_ring(project_id, phone_id)
+        self.srem_answer(project_id, phone_id)
+
+    def srem_ring(self, project_id, phone_id):
+        ring = self.ring.format(project_id=project_id)
+        self.redis.srem(ring, phone_id)
+
+    def srem_queue(self, project_id, phone_id):
+        queue = self.queue.format(project_id=project_id)
+        self.redis.srem(queue, phone_id)
+
+    def srem_answer(self, project_id, phone_id):
+        answer = self.answer.format(project_id=project_id)
+        self.redis.srem(answer, phone_id)
 
     def clear_redis(self, project_id, phone_id):
         '''清除redis
         '''
-        ring = self.ring.format(project_id=project_id)
-        answer = self.answer.format(project_id=project_id)
-        queue = self.queue.format(project_id=project_id)
-        self.redis.srem(ring, phone_id)
-        self.redis.srem(queue, phone_id)
-        self.redis.srem(answer, phone_id)
+        self.srem_ring(project_id, phone_id)
+        self.srem_answer(project_id, phone_id)
+        self.srem_queue(project_id, phone_id)
+
+    def clear_all(self):
+        self._clear_cache(self.ring.format(project_id='*'))
+        self._clear_cache(self.queue.format(project_id='*'))
+        self._clear_cache(self.answer.format(project_id='*'))
+
+    def _clear_cache(self, name):
+        for key in self.redis.scan_iter(name):
+            self.redis.delete(key.decode())

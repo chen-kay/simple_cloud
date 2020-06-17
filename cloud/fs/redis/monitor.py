@@ -50,19 +50,19 @@ class MonitorRedis(BaseRedis):
     def expired_connect(self):
         '''过期接通
         '''
-        connect = self.min_connect.format(project_id='')
+        connect = self.min_connect.format(project_id='*')
         self.clear_expired(connect)
 
     def expired_loss(self):
         '''过期呼损
         '''
-        loss = self.min_loss.format(project_id='')
+        loss = self.min_loss.format(project_id='*')
         self.clear_expired(loss)
 
     def expired_disconnect(self):
         '''过期未接通
         '''
-        disconnect = self.min_disconnect.format(project_id='')
+        disconnect = self.min_disconnect.format(project_id='*')
         self.clear_expired(disconnect)
 
     def clear_expired(self, name):

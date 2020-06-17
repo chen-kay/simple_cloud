@@ -3,7 +3,6 @@ from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.settings import fs_settings
 from freeswitch.configuration import Section
 from freeswitch.configuration.sip_profile import Profile
-from freeswitch.configuration.sip_profile.alias import Alias
 from freeswitch.configuration.sip_profile.external import external_settings
 from freeswitch.configuration.sip_profile.gateway import Gateway
 from freeswitch.configuration.sip_profile.internal import internal_settings
@@ -15,14 +14,14 @@ class Sofia(BaseXml):
         self.profile = request.data.get('profile', None)
 
     def generate_xml_conf(self, data):
-        gateway, domain = data
+        gateway = data
         self.profiles = Section('profiles')
         self.generate_external_xml(gateway)
-        self.generate_internal_xml(domain)
+        self.generate_internal_xml()
         self.xml.addSection(self.profiles)
 
     def get_xml_data(self):
-        return _backends.service_get_gateway(), _backends.service_get_domain()
+        return _backends.service_get_gateway()
 
     def generate_external_xml(self, data):
         '''
@@ -55,7 +54,7 @@ class Sofia(BaseXml):
             profile.addGateway(gateway)
         profiles.addVariable(profile)
 
-    def generate_internal_xml(self, data):
+    def generate_internal_xml(self):
         '''
         '''
         profiles = self.profiles
@@ -63,9 +62,9 @@ class Sofia(BaseXml):
         for key, value in internal_settings.items():
             _val = self.get_default_internal(key)
             profile.addParameter(key, _val if _val else value)
-        for item in data:
-            alias = Alias(item.get('name', ''))
-            profile.addAlias(alias)
+        # for item in data:
+        #     alias = Alias(item.get('name', ''))
+        #     profile.addAlias(alias)
         profiles.addVariable(profile)
 
     def get_default_external(self, key):
