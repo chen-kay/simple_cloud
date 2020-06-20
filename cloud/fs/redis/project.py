@@ -1,4 +1,4 @@
-'''项目相关
+﻿'''项目相关
 '''
 import json
 
@@ -21,9 +21,12 @@ class ProjectRedis(BaseRedis):
     def get_datum(self, project_id):
         try:
             res = self.redis.lpop(self.datum.format(project_id=project_id))
-            data = json.loads(res)
-            return data.get('id'), data.get('mobile')
-        except Exception:
+            if res:
+                data = json.loads(res)
+                return data.get('id'), data.get('mobile')
+            return None, None
+        except Exception as e:
+            print(e)
             return None, None
 
     def get_datum_info(self, mobile_id):

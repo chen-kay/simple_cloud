@@ -13,6 +13,10 @@ class Sofia(BaseXml):
         super().__init__(request)
         self.profile = request.data.get('profile', None)
 
+    def render_xml(self):
+        data = self.get_xml_data()
+        self.generate_xml_conf(data)
+
     def generate_xml_conf(self, data):
         gateway = data
         self.profiles = Section('profiles')

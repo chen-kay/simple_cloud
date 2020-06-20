@@ -1,4 +1,4 @@
-'''坐席监控
+﻿'''坐席监控
 '''
 import time
 
@@ -28,19 +28,19 @@ class MonitorRedis(BaseRedis):
         '''设置接通
         '''
         connect = self.min_connect.format(project_id=project_id)
-        self.redis.lset(connect, int(time.time()))
+        self.redis.rpush(connect, int(time.time()))
 
     def set_loss(self, project_id):
         '''设置呼损
         '''
         loss = self.min_loss.format(project_id=project_id)
-        self.redis.lset(loss, int(time.time()))
+        self.redis.rpush(loss, int(time.time()))
 
     def set_disconnect(self, project_id):
         '''设置未接通
         '''
         disconnect = self.min_disconnect.format(project_id=project_id)
-        self.redis.lset(disconnect, int(time.time()))
+        self.redis.rpush(disconnect, int(time.time()))
 
     def expired(self):
         self.expired_connect()

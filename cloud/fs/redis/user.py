@@ -1,4 +1,4 @@
-'''用户相关
+﻿'''用户相关
 '''
 import json
 
@@ -9,11 +9,15 @@ class UserRedis(BaseRedis):
     '''用户操作reids
     '''
     user = '{username}'
-    sign_out = 'sign-out-{project_id}'
+    sign_in = 'sign-in-{project_id}'
 
-    def get_sign_out(self, project_id):
-        sign_out = self.sign_out.format(project_id=project_id)
-        return self.redis.scard(sign_out)
+    def get_sign_in(self, project_id):
+        sign_in = self.sign_in.format(project_id=project_id)
+        nums = self.redis.get(sign_in)
+        if nums:
+            nums = int(self.redis.get(sign_in).decode())
+            return nums if nums > 0 else 0
+        return 0
 
     def get_user(self, username):
         try:

@@ -1,4 +1,4 @@
-from cloud.fs.event import base
+﻿from cloud.fs.event import base
 from cloud.fs.settings import fs_settings
 from cloud.fs.utils import encrypt_mobile
 
@@ -10,6 +10,7 @@ class Utils(base.BaseEvent):
                              domain,
                              caller='',
                              phoneId='',
+                             project_id='',
                              gateway=None):
         '''呼叫
         mobile: 坐席回显的号码
@@ -21,9 +22,10 @@ class Utils(base.BaseEvent):
         '''
         if not gateway:
             gateway = fs_settings.DEFAULT_GATEWAY_NAME
-        msg = """originate {{sip_h_X-Phoneid={phoneId},cc_export_vars=sip_h_X-Phoneid,origination_caller_id_number={caller},effective_caller_id_number={encrypt},call_timeout=30,agent_timeout=5,originate_timeout=30}}sofia/gateway/{gateway}/{mobile} {queue_name} XML {domain}""".format( # noqa
+        msg = """bgapi originate {{sip_h_X-Phoneid={phoneId},sip_h_X-Proid={project_id},cc_export_vars=sip_h_X-Phoneid,origination_caller_id_number={caller},effective_caller_id_number={encrypt},call_timeout=30,agent_timeout=5,originate_timeout=30}}sofia/gateway/{gateway}/{mobile} {queue_name} XML {domain}""".format( # noqa
             **{
                 'phoneId': phoneId,
+                'project_id': project_id,
                 'caller': caller,
                 'mobile': mobile,
                 'encrypt': encrypt_mobile(mobile),

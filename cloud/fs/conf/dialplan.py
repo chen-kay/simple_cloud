@@ -1,4 +1,4 @@
-from cloud.fs.models import ServiceBackends as _backends
+﻿from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.settings import fs_settings
 from freeswitch.dialplan.condition import Condition
 from freeswitch.dialplan.context import Context
@@ -38,7 +38,8 @@ class Dialplan(BaseXml):
         direction = self.request.data.get('Call-Direction', None)
         dest = self.request.data.get('Caller-Destination-Number', None)
 
-        phoneId = self.request.data.get('variable_sip_h_X-Phoneid', None)
+        proId = self.request.data.get('variable_sip_h_X-Proid', None)
+        mobile_id = self.request.data.get('variable_sip_h_X-Phoneid', None)
 
         caller = context
         if direction == 'inbound':
@@ -48,11 +49,13 @@ class Dialplan(BaseXml):
             gateway = _backends.service_get_gateway_name(context)  # 获取企业配置网关
             if not gateway:
                 gateway = fs_settings.DEFAULT_GATEWAY_NAME
-            if phoneId:
-                dest, proId = _backends.service_get_mobile(phoneId)  # 获取真实被叫
+            if proId:
+                # mobile_id, mobile = _backends.service_extract_datum(proId)  # 获取真实被叫
                 caller = '{0}_{1}'.format(context, proId)  # 设置主叫为 域名 + 业务id
-            if not dest:
-                return self.hangup(context)
+            if mobile_id:
+                dest = mobile_id
+            # if not mobile_id or not mobile:
+            #     return self.hangup(context)
             return [
                 (
                     'sys_inbound',
@@ -76,7 +79,6 @@ class Dialplan(BaseXml):
                             ('bridge',
                              'sofia/gateway/{0}/{1}'.format(gateway,
                                                             dest), False),
-                            # ('bridge', 'user/1000@system', False),
                         ])]),
             ]
         elif direction == 'outbound':

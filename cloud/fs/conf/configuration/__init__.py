@@ -19,7 +19,6 @@ class Configuration(BaseXml):
     def __new__(cls, request):
         key_value = request.data['key_value']
         obj = getattr(cls, key_value.split('.')[0], None)
-        print(key_value)
         if obj:
             _method = obj(request)
             _method.section = cls.section

@@ -1,4 +1,4 @@
-'''接口相关
+﻿'''接口相关
 用户初始化
 用户退出（断开websocket）
 用户签入
@@ -58,6 +58,8 @@ class BaseViews(viewsets.ModelViewSet):
 
     serializer_class = UserFields
 
+    def get_queryset(self):
+        return []
 
 class Initialize(BaseViews):
     '''用户初始化
@@ -157,6 +159,7 @@ class QueueStop(BaseViews):
 
 class TestAutoCaller(BaseViews):
     serializer_class = MobileFields
+
 
     def update(self, request, pk, *args, **kwargs):
         mobile = request.data.get('mobile', None)

@@ -1,4 +1,4 @@
-import math
+﻿import math
 
 from cloud.fs.redis import call, domain, gateway, project, user
 from cloud.fs.settings import fs_settings
@@ -40,17 +40,18 @@ class ServiceBackend:
         '''
         return self.project.get_datum_info(mobile_id)
 
-    def get_compute_nums(self, project_id, callmax=0, ratio=0):
+    def get_compute_nums(self, project_id, callmax=1, ratio=1):
         '''计算当前外呼数量
         '''
         ring = self.call.get_ring(project_id)
         queue = self.call.get_queue(project_id)
         answer = self.call.get_answer(project_id)
-        sign_out = self.user.get_sign_out(project_id)
+        sign_in = self.user.get_sign_in(project_id)
+        print(ring, queue, answer, sign_in, callmax, ratio)
         return self._compute_call_nums(ring=ring,
                                        queue=queue,
                                        answer=answer,
-                                       free=sign_out,
+                                       free=sign_in,
                                        callmax=callmax,
                                        ratio=ratio)
 
@@ -105,7 +106,7 @@ class ServiceBackend:
         call_nums = max_nums if free_nums > max_nums else free_nums
 
         _default_rate = self.rate
-        return call_nums if call_nums > _default_rate else _default_rate
+        return _default_rate if call_nums > _default_rate else call_nums
 
     @property
     def rate(self):

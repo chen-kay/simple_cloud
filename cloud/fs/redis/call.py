@@ -1,4 +1,4 @@
-'''通话相关
+﻿'''通话相关
 '''
 from .base import BaseRedis
 
@@ -20,13 +20,13 @@ class CallRedis(BaseRedis):
         '''获取振铃中
         '''
         queue = self.queue.format(project_id=project_id)
-        return self.redis.scard(queue, project_id)
+        return self.redis.scard(queue)
 
     def get_answer(self, project_id):
         '''获取振铃中
         '''
         answer = self.answer.format(project_id=project_id)
-        return self.redis.scard(answer, project_id)
+        return self.redis.scard(answer)
 
     def set_ring(self, project_id, phone_id):
         '''设置振铃中

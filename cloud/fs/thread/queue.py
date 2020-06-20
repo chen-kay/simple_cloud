@@ -1,4 +1,4 @@
-import threading
+﻿import threading
 from time import sleep
 
 from cloud.fs.event import utils
@@ -18,11 +18,11 @@ class Queue(threading.Thread):
 
     @property
     def queue_name(self):
-        return '{0}_{1}'.fromat(self.domain, self.project_id)
+        return '{0}_{1}'.format(self.domain, self.project_id)
 
     @property
     def caller(self):
-        return '{0}_{1}'.fromat(self.domain, self.project_id)
+        return '{0}_{1}'.format(self.domain, self.project_id)
 
     def run(self):
         print('{0} - {1} : started'.format(self.domain, self.project_id))
@@ -38,17 +38,27 @@ class Queue(threading.Thread):
             if not conn.connected():
                 self.handle.re_connection()
                 continue
+            print('executing')
             self.get_project_info()
-            if not self.execting:
-                break
+            # if not self.execting:
+            #     break
             self.get_sys_gateway()
             out_nums = self.compute_out_nums()
-            datum = self.get_extract_mobile(out_nums)
-            for mobile_id, mobile in datum:
-                res, result = self.execute_outbound(mobile_id, mobile)
-                if not result:
-                    # 呼叫发生错误 --> 更改呼叫结果未接通
-                    _backends.service_datum_result(mobile_id)
+            if not out_nums:
+                sleep(1)
+                continue
+            # datum = self.get_extract_mobile(out_nums)
+            for item in range(out_nums):
+                mobile_id, mobile = _backends.service_extract_datum(self.project_id)
+                print(out_nums, mobile_id, mobile)
+                if mobile_id and mobile:
+                    res, result = self.execute_outbound(mobile_id, mobile)
+                    if not result:
+                        # 呼叫发生错误 --> 更改呼叫结果未接通
+                        _backends.service_datum_result(mobile_id)
+                else:
+                    print('无号码')
+                    break
             sleep(1)
         print('{0} - {1} : stopped'.format(self.domain, self.project_id))
 
@@ -78,17 +88,18 @@ class Queue(threading.Thread):
     def compute_out_nums(self):
         '''计算外呼数量
         '''
-        return _backends.service_compute_nums(self.project_id)
+        return _backends.service_compute_nums(self.project_id, self.max_calling, self.ratio)
 
     def get_extract_mobile(self, nums):
         '''提取号码
         '''
         res = set()
         for ind in range(nums):
-            datum = _backends.service_extract_datum(self.project_id)
-            if datum:
-                res.add(datum)
+            mobile_id, mobile = _backends.service_extract_datum(self.project_id)
+            if mobile_id and mobile:
+                res.add((mobile_id, mobile))
             else:
+                print('无号码')
                 break
         return res
 
@@ -99,5 +110,6 @@ class Queue(threading.Thread):
                                                 self.queue_name,
                                                 domain=self.domain,
                                                 phoneId=phoneId,
+                                                project_id=self.project_id,
                                                 caller=self.caller,
                                                 gateway=self.gateway)
