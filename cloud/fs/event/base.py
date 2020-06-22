@@ -29,8 +29,8 @@ class BaseEvent:
         conn = self.conn
         last_msg = None
         if not conn:
-            return 'get_connection(_, `{0}`, `{1}`) Error{2}'.format(
-                _DEFAULT_PORT, _DEFAULT_PWD, self.conn_error), False
+            return 'get_connection(_, `{0}`, `{1}`) Error'.format(
+                _DEFAULT_PORT, _DEFAULT_PWD), False
         try:
             if conn.connected():
                 res = None

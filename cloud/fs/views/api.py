@@ -61,6 +61,7 @@ class BaseViews(viewsets.ModelViewSet):
     def get_queryset(self):
         return []
 
+
 class Initialize(BaseViews):
     '''用户初始化
     '''
@@ -159,7 +160,6 @@ class QueueStop(BaseViews):
 
 class TestAutoCaller(BaseViews):
     serializer_class = MobileFields
-
 
     def update(self, request, pk, *args, **kwargs):
         mobile = request.data.get('mobile', None)

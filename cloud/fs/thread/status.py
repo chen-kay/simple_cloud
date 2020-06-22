@@ -30,6 +30,7 @@ class Status(threading.Thread):
         phone_id = e.getHeader('variable_sip_h_X-Phoneid')
         project_id = e.getHeader('variable_sip_h_X-Proid')
         profile = e.getHeader('variable_sofia_profile_name')
+        print(event_name, phone_id, project_id, profile)
         if phone_id and project_id and profile == 'external':
             if event_name == 'CHANNEL_CREATE':
                 '''设置振铃中

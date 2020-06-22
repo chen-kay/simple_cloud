@@ -39,7 +39,7 @@ class Dialplan(BaseXml):
         dest = self.request.data.get('Caller-Destination-Number', None)
 
         proId = self.request.data.get('variable_sip_h_X-Proid', None)
-        mobile_id = self.request.data.get('variable_sip_h_X-Phoneid', None)
+        # mobile_id = self.request.data.get('variable_sip_h_X-Phoneid', None)
 
         caller = context
         if direction == 'inbound':
@@ -52,34 +52,22 @@ class Dialplan(BaseXml):
             if proId:
                 # mobile_id, mobile = _backends.service_extract_datum(proId)  # 获取真实被叫
                 caller = '{0}_{1}'.format(context, proId)  # 设置主叫为 域名 + 业务id
-            if mobile_id:
-                dest = mobile_id
             # if not mobile_id or not mobile:
             #     return self.hangup(context)
             return [
-                (
-                    'sys_inbound',
-                    False,
-                    [(
-                        'destination_number',
-                        '^(.*)$',
-                        False,
-                        [
-                            ('set', 'RECORD_STEREO=true', False),
-                            ('set', 'RECORD_ANSWER_REQ=true', False),
-                            ('set', 'media_bug_answer_req=true', False),
-                            ('set', 'recording={0}'.format(self.record_path),
-                             False),
-                            ('set',
-                             'execute_on_answer1=record_session ${recording}',
-                             False),
-                            ('set',
-                             'effective_caller_id_number={0}'.format(caller),
-                             False),
-                            ('bridge',
-                             'sofia/gateway/{0}/{1}'.format(gateway,
-                                                            dest), False),
-                        ])]),
+                ('sys_inbound', False,
+                 [('destination_number', '^(.*)$', False, [
+                     ('set', 'RECORD_STEREO=true', False),
+                     ('set', 'RECORD_ANSWER_REQ=true', False),
+                     ('set', 'media_bug_answer_req=true', False),
+                     ('set', 'recording={0}'.format(self.record_path), False),
+                     ('set', 'execute_on_answer1=record_session ${recording}',
+                      False),
+                     ('set', 'effective_caller_id_number={0}'.format(caller),
+                      False),
+                     ('bridge', 'sofia/gateway/{0}/{1}'.format(gateway,
+                                                               dest), False),
+                 ])]),
             ]
         elif direction == 'outbound':
             if self.request.data.get('Channel-Call-State', 'EARLY') != 'EARLY':

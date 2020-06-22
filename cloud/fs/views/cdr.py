@@ -2,13 +2,14 @@
 from datetime import datetime
 from urllib.parse import unquote
 
+from django.db.models import F
 from lxml import etree
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from cloud.fs.event.callcenter.agent import Agent
 from cloud.fs.event.callcenter.queue import Queue
-from cloud.fs.models import CallResult
+from cloud.fs.models import CallResult, DatumResult
 from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.redis import call, monitor
 
@@ -20,6 +21,7 @@ class cdrHandle:
     def __init__(self, uuid, data):
         self.direction = ''
         self.result_id = None  # 资料id
+        self.company_id = None  # 企业id
         self.project_id = None
         self.mobile = ''  # 被叫号码
         self.duration = 0  # 接通时长
@@ -92,6 +94,7 @@ class cdrHandle:
         domain_name = self.get_variables('domain_name')
         self.user_name = '{0}@{1}'.format(username, domain_name)
         self.user = _backends.service_get_userid(self.user_name)
+        print(self.user_name, self.user)
 
         if self.answer_time:
             self.status = 1
@@ -175,29 +178,57 @@ class cdrHandle:
         return datetime.fromtimestamp(int(value))
 
     def save_result(self):
-        result = CallResult(
-            result_id=self.result_id,
-            mobile=self.mobile,
-            direction=self.direction,
-            duration=self.duration,
-            billsec=self.billsec,
-            callsec=self.callsec,
-            start_time=self.start_time,
-            answer_time=self.answer_time,
-            bridge_time=self.bridge_time,
-            end_time=self.end_time,
-            hangup_cause=self.hangup_cause,
-            hangup_source=self.hangup_source,
-            user=self.user,
-            status=self.status,
-            recording=self.recording,
-            queue_name=self.queue_name,
-            caller_id_name=self.caller_id_name,
-            caller_id_number=self.caller_id_number,
-            callee_id_name=self.callee_id_name,
-            callee_id_number=self.callee_id_number,
-        )
-        result.save()
+        # 修改资料呼叫结果
+        try:
+            datum = DatumResult.objects.get(pk=self.result_id)
+
+            self.save_callresult(datum)
+
+            datum.source = self.status
+            datum.callsec = F('callsec') + self.callsec
+            if self.status == 1:
+                datum.callnum = F('callnum') + 1
+            if self.user:
+                datum.user_id = self.user
+            datum.callrecord = self.recording
+            datum.call_time = datetime.now()
+            datum.save(update_fields=[
+                'source', 'callrecord', 'callsec', 'callnum', 'user_id',
+                'call_time'
+            ])
+
+        except Exception as e:
+            raise e
+
+    def save_callresult(self, datum):
+        try:
+            result = CallResult(
+                pid_id=self.result_id,
+                company_id=datum.company_id,
+                mobile=self.mobile,
+                direction=self.direction,
+                duration=self.duration,
+                billsec=self.billsec,
+                callsec=self.callsec,
+                start_time=self.start_time,
+                answer_time=self.answer_time,
+                bridge_time=self.bridge_time,
+                end_time=self.end_time,
+                hangup_cause=self.hangup_cause,
+                hangup_source=self.hangup_source,
+                project_id=datum.project_id,
+                user_id=self.user,
+                status=self.status,
+                recording=self.recording,
+                queue_name=self.queue_name,
+                caller_id_name=self.caller_id_name,
+                caller_id_number=self.caller_id_number,
+                callee_id_name=self.callee_id_name,
+                callee_id_number=self.callee_id_number,
+            )
+            result.save()
+        except Exception as e:
+            print(e)
 
 
 class CdrViews(APIView):
@@ -217,12 +248,6 @@ class CdrViews(APIView):
             print(e)
             saveLog(cdr, a_uuid)
 
-        # 修改资料呼叫结果
-        # datum = Datum.objects.get(pk=handle.result_id)
-        # datum.status = handle.status
-        # datum.recording = handle.recording
-        # datum.user = handle.user
-        # datum.save(update_fields=['status', 'recording', 'user'])
         return Response()
 
 

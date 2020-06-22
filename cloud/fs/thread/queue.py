@@ -2,6 +2,7 @@
 from time import sleep
 
 from cloud.fs.event import utils
+from cloud.fs.models import DatumResult
 from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.settings import fs_settings
 
@@ -12,6 +13,7 @@ class Queue(threading.Thread):
         self.status = 1
         self.domain = domain
         self.project_id = project_id
+        self.company_id = domain.replace('af', '')
 
         self.handle = utils.Utils()
         threading.Thread.__init__(self, daemon=True)
@@ -38,7 +40,6 @@ class Queue(threading.Thread):
             if not conn.connected():
                 self.handle.re_connection()
                 continue
-            print('executing')
             self.get_project_info()
             # if not self.execting:
             #     break
@@ -49,13 +50,12 @@ class Queue(threading.Thread):
                 continue
             # datum = self.get_extract_mobile(out_nums)
             for item in range(out_nums):
-                mobile_id, mobile = _backends.service_extract_datum(self.project_id)
-                print(out_nums, mobile_id, mobile)
-                if mobile_id and mobile:
-                    res, result = self.execute_outbound(mobile_id, mobile)
-                    if not result:
-                        # 呼叫发生错误 --> 更改呼叫结果未接通
-                        _backends.service_datum_result(mobile_id)
+                datum = self.get_datum_result()
+                if datum:
+                    res, result = self.execute_outbound(datum.pk, datum.phone)
+                    # if not result:
+                    # 呼叫发生错误 --> 更改呼叫结果未接通
+                    # _backends.service_datum_result(mobile_id)
                 else:
                     print('无号码')
                     break
@@ -88,14 +88,16 @@ class Queue(threading.Thread):
     def compute_out_nums(self):
         '''计算外呼数量
         '''
-        return _backends.service_compute_nums(self.project_id, self.max_calling, self.ratio)
+        return _backends.service_compute_nums(self.project_id,
+                                              self.max_calling, self.ratio)
 
     def get_extract_mobile(self, nums):
         '''提取号码
         '''
         res = set()
         for ind in range(nums):
-            mobile_id, mobile = _backends.service_extract_datum(self.project_id)
+            mobile_id, mobile = _backends.service_extract_datum(
+                self.project_id)
             if mobile_id and mobile:
                 res.add((mobile_id, mobile))
             else:
@@ -113,3 +115,15 @@ class Queue(threading.Thread):
                                                 project_id=self.project_id,
                                                 caller=self.caller,
                                                 gateway=self.gateway)
+
+    def get_datum_result(self):
+        '''获取项目资料
+        '''
+        mobile_id, mobile = _backends.service_extract_datum(self.project_id)
+        if mobile_id and mobile:
+            datum = DatumResult.objects.create(company_id=self.company_id,
+                                               project_id=self.project_id,
+                                               datum_id=mobile_id,
+                                               phone=mobile)
+            return datum
+        return None

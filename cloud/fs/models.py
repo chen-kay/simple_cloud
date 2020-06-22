@@ -180,10 +180,45 @@ class Datum(models.Model):
                                  blank=True)
 
 
+class DatumResult(models.Model):
+    '''呼叫结果
+    '''
+    company_id = models.IntegerField('企业id')
+    project_id = models.IntegerField('项目id')
+    user_id = models.IntegerField('坐席id', null=True)
+    datum_id = models.CharField('项目资料', max_length=50, db_index=True)
+    phone = models.CharField(verbose_name='号码', max_length=50, db_index=True)
+    source = models.IntegerField(verbose_name='最后一次呼叫状态',
+                                 choices=((1, '接通'), (2, '未接通'), (3, '呼损')),
+                                 default=2)
+    callsec = models.IntegerField(verbose_name='呼叫总时长', default=0)
+    callnum = models.IntegerField(verbose_name='接通次数', default=0)
+    callrecord = models.CharField(verbose_name='最后一次录音地址',
+                                  max_length=200,
+                                  null='',
+                                  default=None)
+    call_time = models.DateTimeField(verbose_name='最后一次接通时间',
+                                     null=True,
+                                     default=None)
+
+    create_date = models.DateField(verbose_name='提号时间',
+                                   auto_now_add=True,
+                                   db_index=True)
+    create_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+
+    class Meta:
+        managed = False
+        db_table = 'hujiao_datumresult'
+
+
 class CallResult(models.Model):
     '''呼叫记录
     '''
-    result_id = models.IntegerField('资料结果id', null=True)
+    pid_id = models.IntegerField('DatumResult:id', null=True)
+    company_id = models.IntegerField('企业id')
+    project_id = models.IntegerField('项目id')
+    user_id = models.IntegerField('坐席id', null=True)
+
     mobile = models.CharField('号码', max_length=50)
     direction = models.CharField('呼叫类型', max_length=20, blank=True, default='')
     duration = models.IntegerField('呼叫时长', default=0)
@@ -206,7 +241,6 @@ class CallResult(models.Model):
 
     queue_name = models.CharField('队列', max_length=50, blank=True, default='')
 
-    user = models.IntegerField('坐席id', null=True)
     status = models.IntegerField('状态',
                                  choices=((1, '接通'), (2, '未接通'), (3, '呼损')),
                                  default=2)
@@ -232,8 +266,6 @@ class CallResult(models.Model):
                                         blank=True,
                                         default='')
 
-
-class Cdr(models.Model):
-    '''话单
-    '''
-    uuid = models.CharField('主键id 用来做数据关联', max_length=50, unique=True)
+    class Meta:
+        managed = False
+        db_table = 'fs_callresult'
