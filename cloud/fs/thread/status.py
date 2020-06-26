@@ -6,9 +6,6 @@ from cloud.fs.redis import call
 
 
 class Status(threading.Thread):
-    ring = 'ring-{0}'
-    queue = 'queue-{0}'
-    answer = 'answer-{0}'
     call = call
 
     def __init__(self):
@@ -29,8 +26,11 @@ class Status(threading.Thread):
         event_name = e.getHeader('Event-Name')
         phone_id = e.getHeader('variable_sip_h_X-Phoneid')
         project_id = e.getHeader('variable_sip_h_X-Proid')
+        pro_type = e.getHeader('variable_sip_h_X-Protype')
         profile = e.getHeader('variable_sofia_profile_name')
         print(event_name, phone_id, project_id, profile)
+        if str(pro_type) not in ['1', '2']:
+            return
         if phone_id and project_id and profile == 'external':
             if event_name == 'CHANNEL_CREATE':
                 '''设置振铃中
