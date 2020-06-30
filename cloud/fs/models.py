@@ -69,7 +69,10 @@ class ServiceBackends:
     def service_compute_nums(cls, project_id, callmax=0, ratio=0):
         '''计算外呼量
         '''
-        return _get_backends('get_compute_nums', project_id)
+        return _get_backends('get_compute_nums',
+                             project_id,
+                             callmax=callmax,
+                             ratio=ratio)
 
     @classmethod
     def service_extract_datum(cls, project_id):

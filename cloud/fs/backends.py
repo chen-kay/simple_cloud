@@ -4,6 +4,74 @@ from cloud.fs.redis import call, domain, gateway, project, user
 from cloud.fs.settings import fs_settings
 
 
+class BaseBackend:
+    def get_service_domain(self):
+        """
+        获取系统企业标识
+        Return: [{'name': ''}]
+        """
+        pass
+
+    def get_service_gateway(self, domain=None):
+        """
+        获取系统网关 - 落地
+        Args:
+            domain: 企业域名
+        """
+        pass
+
+    def get_service_directory(self, username):
+        """
+        获取系统用户 - 可注册分机
+        Args:
+            username: 注册名称 user@domain
+        """
+
+    def get_service_queue(self, queue):
+        """
+        获取系统执行队列
+        Args:
+            queue: 执行队列名称
+        """
+
+    def get_service_mobile(self, dest):
+        """
+        解析系统呼叫号码
+        Args:
+            dest: 被叫号码
+        """
+        return dest
+
+    def get_extract_datum(self, queue):
+        """
+        提取项目资料 -> 用于自动外呼执行
+        Args:
+            queue: 执行队列名称
+        """
+
+    def change_datum_result(self,
+                            mobileId,
+                            status=2,
+                            callsec=0,
+                            recording=None):
+        """
+        呼叫结果信息提交
+        Args:
+            mobileId: 资料id
+            status: 呼叫结果 1.接通 2.未接通 3.呼损
+            callsec: 坐席通话时长
+            recording: 坐席接通录音文件地址
+        """
+
+    def handle_cdr_save(self, uuid, cdr):
+        """
+        通话结束返回 处理话单记录
+        Args:
+            uuid: 通话uuid
+            cdr: 话单xml字符串
+        """
+
+
 class ServiceBackend:
     domain = domain
     gateway = gateway
