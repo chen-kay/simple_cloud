@@ -1,8 +1,10 @@
 ﻿import threading
 from time import sleep
 
+from django.db.models import F
+
 from cloud.fs.event import utils
-from cloud.fs.models import DatumResult
+from cloud.fs.models import DatumResult, HujiaoProject
 from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.settings import fs_settings
 
@@ -17,6 +19,11 @@ class Queue(threading.Thread):
 
         self.handle = utils.Utils()
         threading.Thread.__init__(self, daemon=True)
+
+        try:
+            self.hujiao_project = HujiaoProject.objects.get(project_id)
+        except Exception:
+            self.hujiao_project = None
 
     @property
     def queue_name(self):
@@ -89,7 +96,8 @@ class Queue(threading.Thread):
         '''计算外呼数量
         '''
         return _backends.service_compute_nums(self.project_id,
-                                              self.max_calling, self.ratio)
+                                              callmax=self.max_calling,
+                                              ratio=self.ratio)
 
     def get_extract_mobile(self, nums):
         '''提取号码
@@ -125,5 +133,17 @@ class Queue(threading.Thread):
                                                project_id=self.project_id,
                                                datum_id=mobile_id,
                                                phone=mobile)
+            self.diff_project_datum()
             return datum
         return None
+
+    def diff_project_datum(self):
+        """
+        剩余资料数-1
+        """
+        try:
+            if self.hujiao_project:
+                self.hujiao_project.surplus_nums = F('surplus_nums') - 1
+                self.hujiao_project.save(update_fields=['surplus_nums'])
+        except Exception:
+            pass

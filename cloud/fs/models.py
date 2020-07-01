@@ -272,3 +272,11 @@ class CallResult(models.Model):
     class Meta:
         managed = False
         db_table = 'fs_callresult'
+
+
+class HujiaoProject(models.Model):
+    surplus_nums = models.IntegerField('剩余资料数', default=0)
+
+    class Meta:
+        managed = False
+        db_table = 'hujiao_project'
