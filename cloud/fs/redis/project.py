@@ -26,7 +26,7 @@ class ProjectRedis(BaseRedis):
                 res = self.redis.lpop(item)
                 if res:
                     data = json.loads(res)
-                    return data.get('id'), data.get('phone')
+                    return data.get('id'), data.get('mobile')
                 else:
                     self.redis.delete(item)
             return None, None
