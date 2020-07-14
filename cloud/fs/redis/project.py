@@ -9,7 +9,7 @@ class ProjectRedis(BaseRedis):
     '''项目操作reids
     '''
     project = 'project_{project_id}'
-    datum = 'list_{project_id}'
+    datum = '{project_id}_*_list'
 
     def get_project(self, project_id):
         try:
@@ -20,10 +20,15 @@ class ProjectRedis(BaseRedis):
 
     def get_datum(self, project_id):
         try:
-            res = self.redis.lpop(self.datum.format(project_id=project_id))
-            if res:
-                data = json.loads(res)
-                return data.get('id'), data.get('mobile')
+            key = self.datum.format(project_id=project_id)
+            datums = [item.decode() for item in self.redis.keys(key)]
+            for item in datums:
+                res = self.redis.lpop(item)
+                if res:
+                    data = json.loads(res)
+                    return data.get('id'), data.get('phone')
+                else:
+                    self.redis.delete(item)
             return None, None
         except Exception as e:
             print(e)
