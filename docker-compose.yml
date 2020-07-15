@@ -15,10 +15,10 @@ services:
       DJANGO_ENV: product
     image: cloud_ky
     container_name: cloud_ky
-    working_dir: /home/docker/cloud
+    working_dir: /home/docker/simple_cloud
     volumes:
-      - ./logs:/home/docker/cloud/logs
-      - ./views:/home/docker/cloud/views
+      - ./logs:/home/docker/simple_cloud/logs
+      - ./views:/home/docker/simple_cloud/views
     # env_file:
     #   - .envs/.production
     ports:

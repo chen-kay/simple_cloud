@@ -11,8 +11,8 @@ django-environ
 # django-restframework swagger
 drf-yasg
 # FreeSWITCH ESL
-# python-ESL
-# uwsgi
+python-ESL
+uwsgi
 
 lxml
 
