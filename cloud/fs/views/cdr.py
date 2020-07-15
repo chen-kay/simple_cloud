@@ -184,7 +184,8 @@ class cdrHandle:
 
             self.save_callresult(datum)
 
-            datum.source = self.status
+            if datum.source != 1:
+                datum.source = self.status
             datum.callsec = F('callsec') + self.callsec
             if self.status == 1:
                 datum.callnum = F('callnum') + 1
