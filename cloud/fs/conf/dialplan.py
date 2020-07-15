@@ -75,8 +75,8 @@ class Dialplan(BaseXml):
                          [('destination_number', '^(.*)$', False, [
                              ('callcenter', '${destination_number}', False),
                          ])])]
-            if not _backends.get_service_queue(dest):
-                return self.hangup(context)
+            # if not _backends.get_service_queue(dest):
+            #     return self.hangup(context)
             return [('sys_callcenter', False, [
                 ('destination_number', '^(.*)$', False, [
                     ('set',
