@@ -21,7 +21,7 @@ class Queue(threading.Thread):
         threading.Thread.__init__(self, daemon=True)
 
         try:
-            self.hujiao_project = HujiaoProject.objects.get(id=project_id)
+            self.hujiao_project = HujiaoProject.objects.get(id=self.project_id)
         except Exception:
             self.hujiao_project = None
 
