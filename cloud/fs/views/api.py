@@ -182,7 +182,20 @@ class AgentList(BaseViews):
     def list(self, request, *args, **kwargs):
         handle = agent.Agent()
         res, result = handle.get_list()
-        return Response({'data': res, 'ok': result})
+        _, _list = res
+        rows = _list.split('\n')
+        data = [], columns = []
+        for row in rows:
+            if not row or row == '+OK':
+                continue
+            if not columns:
+                columns = row.split('|')
+            else:
+                data.append({
+                    columns[ind]: val
+                    for ind, val in enumerate(row.split('|'))
+                })
+        return Response({'data': data, 'ok': result})
 
 
 init = Initialize.as_view({'put': 'update'})
