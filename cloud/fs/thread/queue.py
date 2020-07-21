@@ -83,7 +83,7 @@ class Queue(threading.Thread):
         '''
         info = _backends.service_get_project(self.project_id)
         self.max_calling = int(info.get('max_calling', 0))
-        self.ratio = int(info.get('ratio', 0))
+        self.ratio = float(info.get('ratio', 0))
         self.status = info.get('status', None)
 
     def get_sys_gateway(self):
