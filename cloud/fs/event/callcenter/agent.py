@@ -2,6 +2,12 @@ from cloud.fs.event import base
 
 
 class Agent(base.BaseEvent):
+    def get_list(self):
+        """列表
+        """
+        msg = "callcenter_config agent list"
+        return self.send(msg)
+
     def sign_in(self, user):
         '''签入
         '''

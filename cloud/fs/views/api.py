@@ -20,9 +20,9 @@ from django.urls import path
 from rest_framework import exceptions, serializers, viewsets
 from rest_framework.response import Response
 
-from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.event import utils
 from cloud.fs.event.callcenter import agent
+from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.thread import fs_thread
 
 
@@ -178,10 +178,18 @@ class TestAutoCaller(BaseViews):
         return Response({'data': res, 'ok': result})
 
 
+class AgentList(BaseViews):
+    def list(self, request, *args, **kwargs):
+        handle = agent.Agent()
+        res, result = handle.get_list()
+        return Response({'data': res, 'ok': result})
+
+
 init = Initialize.as_view({'put': 'update'})
 destroy = DestroyUser.as_view({'put': 'update'})
 login = SignIn.as_view({'put': 'update'})
 logout = SignOut.as_view({'put': 'update'})
+agent_list = AgentList.as_view({'get': 'list'})
 queue_change = QueueChange.as_view({'put': 'update'})
 queue_start = QueueStart.as_view({'put': 'update'})
 queue_stop = QueueStop.as_view({'put': 'update'})
@@ -193,6 +201,7 @@ urlpatterns = [
     path('destroy', destroy),
     path('sign/in', login),
     path('sign/out', logout),
+    path('agent/list', agent_list),
     path('queue/change', queue_change),
     path('queue/<int:pk>/start', queue_start),
     path('queue/<int:pk>/stop', queue_stop),
