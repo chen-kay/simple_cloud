@@ -1,4 +1,4 @@
-﻿'''项目相关
+'''项目相关
 '''
 import json
 
@@ -9,7 +9,8 @@ class ProjectRedis(BaseRedis):
     '''项目操作reids
     '''
     project = 'project_{project_id}'
-    datum = '{project_id}_*_list'
+    datum_list = '{project_id}_datum_list'
+    datum = '{project_id}_{datum_id}_list'
 
     def get_project(self, project_id):
         try:
@@ -20,15 +21,14 @@ class ProjectRedis(BaseRedis):
 
     def get_datum(self, project_id):
         try:
-            key = self.datum.format(project_id=project_id)
-            datums = [item.decode() for item in self.redis.keys(key)]
-            for item in datums:
-                res = self.redis.lpop(item)
+            datum_list = self.datum_list.format(project_id=project_id)
+            datum_set = self.redis.sinter(datum_list)
+            for datum_id in self.redis.sinter(datum_list):
+                datum = self.datum.format(project_id=project_id, datum_id=datum_id.decode())
+                res = self.redis.spop(datum)
                 if res:
                     data = json.loads(res)
                     return data.get('id'), data.get('mobile')
-                else:
-                    self.redis.delete(item)
             return None, None
         except Exception as e:
             print(e)

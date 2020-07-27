@@ -280,3 +280,12 @@ class HujiaoProject(models.Model):
     class Meta:
         managed = False
         db_table = 'hujiao_project'
+
+        
+class HujiaoMeans(models.Model):
+    live_no = models.IntegerField('剩余资料数', default=0)
+
+    class Meta:
+        managed = False
+        db_table = 'hujiao_ziliao'
+        

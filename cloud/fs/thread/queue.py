@@ -4,7 +4,7 @@ from time import sleep
 from django.db.models import F
 
 from cloud.fs.event import utils
-from cloud.fs.models import DatumResult, HujiaoProject
+from cloud.fs.models import DatumResult, HujiaoProject, HujiaoMeans
 from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.settings import fs_settings
 
@@ -134,6 +134,7 @@ class Queue(threading.Thread):
                                                datum_id=mobile_id,
                                                phone=mobile)
             self.diff_project_datum()
+            self.diff_means_num(mobile_id)
             return datum
         return None
 
@@ -145,5 +146,14 @@ class Queue(threading.Thread):
             if self.hujiao_project:
                 self.hujiao_project.surplus_nums = F('surplus_nums') - 1
                 self.hujiao_project.save(update_fields=['surplus_nums'])
+        except Exception:
+            pass
+
+    def diff_means_num(self, ziliao):
+        try:
+            hujiao_means = HujiaoMeans.objects.get(id=ziliao)
+            print(hujiao_means)
+            hujiao_means.live_no = F('live_no') - 1
+            hujiao_means.save(update_fields=['live_no'])
         except Exception:
             pass
