@@ -21,7 +21,7 @@ from rest_framework import exceptions, serializers, viewsets
 from rest_framework.response import Response
 
 from cloud.fs.event import utils
-from cloud.fs.event.callcenter import agent
+from cloud.fs.event.callcenter import agent, tier
 from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.thread import fs_thread
 
@@ -199,11 +199,33 @@ class AgentList(BaseViews):
         return Response({'data': data, 'ok': result})
 
 
+class TierList(BaseViews):
+    def list(self, request, *args, **kwargs):
+        handle = tier.Tier()
+        res, result = handle.get_list()
+        _, _list = res
+        rows = _list.split('\n')
+        data = []
+        columns = []
+        for row in rows:
+            if not row or row == '+OK':
+                continue
+            if not columns:
+                columns = row.split('|')
+            else:
+                data.append({
+                    columns[ind]: val
+                    for ind, val in enumerate(row.split('|'))
+                })
+        return Response({'data': data, 'ok': result})
+
+
 init = Initialize.as_view({'put': 'update'})
 destroy = DestroyUser.as_view({'put': 'update'})
 login = SignIn.as_view({'put': 'update'})
 logout = SignOut.as_view({'put': 'update'})
 agent_list = AgentList.as_view({'get': 'list'})
+tier_list = TierList.as_view({'get': 'list'})
 queue_change = QueueChange.as_view({'put': 'update'})
 queue_start = QueueStart.as_view({'put': 'update'})
 queue_stop = QueueStop.as_view({'put': 'update'})
@@ -216,6 +238,7 @@ urlpatterns = [
     path('sign/in', login),
     path('sign/out', logout),
     path('agent/list', agent_list),
+    path('tier/list', tier_list),
     path('queue/change', queue_change),
     path('queue/<int:pk>/start', queue_start),
     path('queue/<int:pk>/stop', queue_stop),
