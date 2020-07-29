@@ -184,7 +184,8 @@ class AgentList(BaseViews):
         res, result = handle.get_list()
         _, _list = res
         rows = _list.split('\n')
-        data = [], columns = []
+        data = []
+        columns = []
         for row in rows:
             if not row or row == '+OK':
                 continue

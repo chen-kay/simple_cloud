@@ -108,7 +108,7 @@ class cdrHandle:
             self.status = 3
             self.user_name = self.get_unquote('cc_agent')
             if self.user_name:
-                self.sign_out(self.user_name)
+                # self.sign_out(self.user_name)
                 self.user = _backends.service_get_userid(self.user_name)
                 self.recording = self.get_unquote('cc_record_filename')
                 self.status = 1
