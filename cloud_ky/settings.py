@@ -38,6 +38,15 @@ CACHES = {'default': env.cache()}
 
 DATABASES = {'default': env.db()}
 
+FS_FRAMEWORK = {
+    'DEFAULT_EXT_SIP_IP': env.str('DEFAULT_EXT_SIP_IP', 'auto-nat'),
+    'DEFAULT_EXT_RTP_IP': env.str('DEFAULT_EXT_RTP_IP', 'auto-nat'),
+    'DEFAULT_INTERNAL_SIP_PORT': env.str('DEFAULT_INTERNAL_SIP_PORT', '5060'),
+    'DEFAULT_EXTERNAL_SIP_PORT': env.str('DEFAULT_EXTERNAL_SIP_PORT', '5080'),
+    'DEFAULT_WS_BINDING': env.str('DEFAULT_WS_BINDING', '5066'),
+    'DEFAULT_WSS_BINDING': env.str('DEFAULT_WSS_BINDING', '7443'),
+}
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -95,7 +104,6 @@ WSGI_APPLICATION = 'cloud_ky.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
