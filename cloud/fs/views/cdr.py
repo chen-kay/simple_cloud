@@ -72,7 +72,8 @@ class cdrHandle:
             print(e)
             self.xml = None
         finally:
-            monitor.on_end(self.project_id, self.status)
+            if self.result_id and self.project_id:
+                monitor.on_end(self.project_id, self.status)
 
     def generate_time(self):
         self.duration = self.get_variables('duration')
@@ -243,7 +244,7 @@ class CdrViews(APIView):
         cdr = request.data.get('cdr', None)
         try:
             handle = cdrHandle(a_uuid, cdr)
-            if handle.result_id:
+            if handle.result_id and handle.project_id:
                 handle.save_result()
         except Exception as e:
             print(e)
