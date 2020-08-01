@@ -22,9 +22,10 @@ class ProjectRedis(BaseRedis):
     def get_datum(self, project_id):
         try:
             datum_list = self.datum_list.format(project_id=project_id)
-            datum_set = self.redis.sinter(datum_list)
+            # datum_set = self.redis.sinter(datum_list)
             for datum_id in self.redis.sinter(datum_list):
-                datum = self.datum.format(project_id=project_id, datum_id=datum_id.decode())
+                datum = self.datum.format(project_id=project_id,
+                                          datum_id=datum_id.decode())
                 res = self.redis.spop(datum)
                 if res:
                     data = json.loads(res)

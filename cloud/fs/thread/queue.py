@@ -15,7 +15,7 @@ class Queue(threading.Thread):
         self.status = 1
         self.domain = domain
         self.project_id = project_id
-        self.company_id = domain.replace('af', '')
+        self.company_id = None
 
         self.handle = utils.Utils()
         threading.Thread.__init__(self, daemon=True)
@@ -85,6 +85,7 @@ class Queue(threading.Thread):
         self.max_calling = int(info.get('max_calling', 0))
         self.ratio = float(info.get('ratio', 0))
         self.status = info.get('status', None)
+        self.company_id = info.get('company_id', None)
 
     def get_sys_gateway(self):
         '''获取网关信息
