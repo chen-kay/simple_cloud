@@ -19,7 +19,7 @@ class MonitorRedis(BaseRedis):
             return
         if status == 1:
             self.set_connect(project_id)
-        if status == 3:
+        elif status == 3:
             self.set_loss(project_id)
         else:
             self.set_disconnect(project_id)

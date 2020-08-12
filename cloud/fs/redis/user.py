@@ -13,11 +13,11 @@ class UserRedis(BaseRedis):
 
     def get_sign_in(self, project_id):
         sign_in = self.sign_in.format(project_id=project_id)
-        nums = self.redis.get(sign_in)
-        if nums:
-            nums = int(self.redis.get(sign_in).decode())
-            return nums if nums > 0 else 0
-        return 0
+        # nums = self.redis.get(sign_in)
+        # if nums:
+        #     nums = int(self.redis.get(sign_in).decode())
+        #     return nums if nums > 0 else 0
+        return self.redis.scard(sign_in)
 
     def get_user(self, username):
         try:
