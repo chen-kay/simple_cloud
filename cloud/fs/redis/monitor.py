@@ -66,11 +66,13 @@ class MonitorRedis(BaseRedis):
         self.clear_expired(disconnect)
 
     def clear_expired(self, name):
-        tt = int(time.time())
         for key in self.redis.scan_iter(name):
             key = key.decode()
-            raw = self.redis.lindex(key, index=0)
-            if int(raw) < tt - self.expired_time:
-                self.redis.lpop(key)
-            else:
-                break
+            self.remove_val(key)
+
+    def remove_val(self, key):
+        raw = self.redis.lindex(key, index=0)
+        if int(raw) < int(time.time()) - self.expired_time:
+            self.redis.lpop(key)
+            self.remove_val(key)
+        return
