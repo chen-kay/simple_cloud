@@ -28,6 +28,8 @@ class Status(threading.Thread):
         project_id = e.getHeader('variable_sip_h_X-Proid')
         pro_type = e.getHeader('variable_sip_h_X-Protype')
         profile = e.getHeader('variable_sofia_profile_name')
+        if event_name == 'SERVER_DISCONNECTED':
+            raise Exception('FreeSWITCH is DISCONNECTED')
         print(event_name, phone_id, project_id, profile)
         if str(pro_type) not in ['1', '2']:
             return
