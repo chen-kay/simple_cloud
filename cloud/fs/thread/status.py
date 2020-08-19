@@ -28,8 +28,10 @@ class Status(threading.Thread):
         project_id = e.getHeader('variable_sip_h_X-Proid')
         pro_type = e.getHeader('variable_sip_h_X-Protype')
         profile = e.getHeader('variable_sofia_profile_name')
+
         if event_name == 'SERVER_DISCONNECTED':
             raise Exception('FreeSWITCH is DISCONNECTED')
+
         print(event_name, phone_id, project_id, profile)
         if str(pro_type) not in ['1', '2']:
             return
@@ -48,5 +50,9 @@ class Status(threading.Thread):
                 self.call.set_queue(project_id, phone_id)
             elif event_name == 'CHANNEL_HANGUP':
                 '''设置挂机
+                '''
+                self.call.clear_redis(project_id, phone_id)
+            elif event_name == 'CHANNEL_DESTROY':
+                '''设置销毁
                 '''
                 self.call.clear_redis(project_id, phone_id)
