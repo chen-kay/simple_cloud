@@ -48,3 +48,7 @@ class Status(threading.Thread):
                 '''设置挂机
                 '''
                 self.call.clear_redis(project_id, phone_id)
+            elif event_name == 'CHANNEL_DESTROY':
+                '''设置销毁
+                '''
+                self.call.clear_redis(project_id, phone_id)
