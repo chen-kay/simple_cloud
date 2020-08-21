@@ -7,12 +7,14 @@ _DEFAULT_PWD = fs_settings.DEFAULT_EVENT_PASSWD
 
 
 class BaseEvent:
+    cache_conn = '__cache_conn'
+
     @property
     def conn(self):
         return self.get_connection()
 
     def get_connection(self):
-        cache = '__cache_conn'
+        cache = self.cache_conn
         conn = getattr(self, cache, None)
         if not conn:
             setattr(self, cache, self._get_connection())
@@ -20,6 +22,7 @@ class BaseEvent:
 
     def _get_connection(self):
         try:
+            print('FreeSWITCH Connecting....')
             return get_connection(_DEFAULT_IP, _DEFAULT_PORT, _DEFAULT_PWD)
         except Exception as e:
             print(e)

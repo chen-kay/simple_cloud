@@ -9,6 +9,7 @@ def get_connection(ip, port, passwd):
     con = ESL.ESLconnection(ip, port, passwd)
     if not con.connected():
         return None
+    print('FreeSWITCH is Connection')
     return con
 
 

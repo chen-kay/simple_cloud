@@ -15,4 +15,5 @@ class ESLEvent(BaseEvent):
                     if e and callback:
                         callback(e)
             except Exception as e:
+                setattr(self, self.cache_conn, None)
                 raise e
