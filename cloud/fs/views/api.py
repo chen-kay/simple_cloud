@@ -182,6 +182,8 @@ class AgentList(BaseViews):
     def list(self, request, *args, **kwargs):
         handle = agent.Agent()
         res, result = handle.get_list()
+        if not result:
+            return Response({'data': res, 'ok': result})
         _, _list = res
         rows = _list.split('\n')
         data = []
@@ -203,6 +205,8 @@ class TierList(BaseViews):
     def list(self, request, *args, **kwargs):
         handle = tier.Tier()
         res, result = handle.get_list()
+        if not result:
+            return Response({'data': res, 'ok': result})
         _, _list = res
         rows = _list.split('\n')
         data = []
