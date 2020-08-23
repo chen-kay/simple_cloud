@@ -1,7 +1,7 @@
 ﻿import threading
 from time import sleep
 
-from cloud.fs.event.esl import ESLEvent
+from cloud.fs.event.esl import esl_event
 from cloud.fs.redis import call
 
 
@@ -10,13 +10,13 @@ class Status(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self, daemon=True)
-        self.conn = ESLEvent()
+        # self.conn = ESLEvent()
 
     def run(self):
         print('Thread Status starting.')
         while True:
             try:
-                self.conn.events_channels(self.handle_channels)
+                esl_event.events_channels(self.handle_channels)
             except Exception as e:
                 print(e)
             sleep(10)

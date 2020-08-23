@@ -16,3 +16,6 @@ class ESLEvent(BaseEvent):
                         callback(e)
             except Exception as e:
                 raise e
+
+
+esl_event = ESLEvent()
