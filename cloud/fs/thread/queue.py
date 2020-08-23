@@ -82,8 +82,10 @@ class Queue(threading.Thread):
         '''获取业务信息
         '''
         info = _backends.service_get_project(self.project_id)
-        self.max_calling = int(info.get('max_calling', 0))
-        self.ratio = float(info.get('ratio', 0))
+        max_calling = info.get('max_calling', 0)
+        ratio = info.get('ratio', 0)
+        self.max_calling = int(max_calling) if max_calling else 0
+        self.ratio = float(ratio) if ratio else 0
         self.status = info.get('status', None)
         self.company_id = info.get('company_id', None)
 

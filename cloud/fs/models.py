@@ -54,7 +54,7 @@ class ServiceBackends:
         '''获取项目队列信息
         '''
         try:
-            _, _id = queue_name.split('_')
+            _id = queue_name.split('_')[-1]
             return cls.service_get_project(_id)
         except Exception:
             return None
@@ -288,4 +288,3 @@ class HujiaoMeans(models.Model):
     class Meta:
         managed = False
         db_table = 'hujiao_ziliao'
-        
