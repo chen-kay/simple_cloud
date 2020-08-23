@@ -16,6 +16,6 @@ class EventSocket(BaseXml):
             ('nat-map', False),
             ('listen-ip', '0.0.0.0'),
             ('listen-port', '8021'),
-            ('apply-inbound-acl', 'wan.auto'),
+            ('apply-inbound-acl', 'lan'),
             ('password', 'ClueCon'),
         )
