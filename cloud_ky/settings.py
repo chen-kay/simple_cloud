@@ -50,7 +50,7 @@ LOGGING = {
         # 详细的日志格式
         'standard': {
             'format':
-            '[%(asctime)s][%(threadName)s:%(thread)d][task_id:%(name)s][%(filename)s:%(lineno)d]' # noqa
+            '[%(asctime)s][%(threadName)s:%(thread)d][task_id:%(name)s][%(filename)s:%(lineno)d]'  # noqa
             '[%(levelname)s][%(message)s]'
         },
         # 简单的日志格式
@@ -109,8 +109,8 @@ FS_FRAMEWORK = {
     'DEFAULT_EXT_RTP_IP': env.str('DEFAULT_EXT_RTP_IP', 'auto-nat'),
     'DEFAULT_INTERNAL_SIP_PORT': env.str('DEFAULT_INTERNAL_SIP_PORT', '5060'),
     'DEFAULT_EXTERNAL_SIP_PORT': env.str('DEFAULT_EXTERNAL_SIP_PORT', '5080'),
-    'DEFAULT_WS_BINDING': env.str('DEFAULT_WS_BINDING', '5066'),
-    'DEFAULT_WSS_BINDING': env.str('DEFAULT_WSS_BINDING', '7443'),
+    'DEFAULT_WS_BINDING': env.str('DEFAULT_WS_BINDING', ':5066'),
+    'DEFAULT_WSS_BINDING': env.str('DEFAULT_WSS_BINDING', ':7443'),
     'DEFAULT_LISTEN_PORT': env.str('DEFAULT_LISTEN_PORT', '8021'),
     'DEFAULT_EVENT_IP': env.str('DEFAULT_EVENT_IP', '192.168.66.111'),
     'DEFAULT_EVENT_PORT': env.str('DEFAULT_EVENT_PORT', '8021'),
@@ -180,7 +180,7 @@ WSGI_APPLICATION = 'cloud_ky.wsgi.application'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME':
-        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', # noqa
+        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',  # noqa
     },
     {
         'NAME':
