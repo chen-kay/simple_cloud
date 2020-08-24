@@ -1,10 +1,9 @@
-﻿# from cloud.fs.event import base
-from cloud.fs.event.esl import esl_event
+﻿from cloud.fs.event.api import ApiEvent
 from cloud.fs.settings import fs_settings
 from cloud.fs.utils import encrypt_mobile
 
 
-class Utils(object):
+class Utils(ApiEvent):
     def originate_queue_test(self,
                              mobile,
                              queue_name,
@@ -34,4 +33,4 @@ class Utils(object):
                 'queue_name': queue_name,
                 'domain': domain,
             })
-        return esl_event.send(msg)
+        return self.send(msg)

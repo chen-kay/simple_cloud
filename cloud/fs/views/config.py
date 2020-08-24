@@ -1,9 +1,12 @@
-﻿from django.http.response import HttpResponse
+﻿import logging
+import traceback
+
+from django.http.response import HttpResponse
 from rest_framework.views import APIView
 
-from cloud.fs.conf import xml, base
+from cloud.fs.conf import base, xml
 
-import traceback
+logger = logging.getLogger('logs')
 
 
 class ConfigViews(APIView):
@@ -18,8 +21,6 @@ class ConfigViews(APIView):
         try:
             config.render_xml()
         except Exception as e:
-            print(request.data, e)
-            traceback.print_exc()
+            logger.error(traceback.format_exc())
             raise e
         return HttpResponse(config.to_xml(), content_type='text/xml')
-

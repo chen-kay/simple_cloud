@@ -1,10 +1,14 @@
-﻿import threading
+﻿import logging
+import threading
+import traceback
 from time import sleep
 
 from cloud.fs.redis import monitor
 
 from .queue import Queue
 from .status import Status
+
+logger = logging.getLogger('logs')
 
 
 class FsThread(threading.Thread):
@@ -21,6 +25,7 @@ class FsThread(threading.Thread):
             try:
                 self.monitor.expired()
             except Exception as e:
+                logger.error(traceback.format_exc())
                 print(e)
             sleep(1)
 

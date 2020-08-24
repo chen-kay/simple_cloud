@@ -1,4 +1,6 @@
-﻿import os
+﻿import logging
+import os
+import traceback
 from datetime import datetime
 from urllib.parse import unquote
 
@@ -12,6 +14,8 @@ from cloud.fs.event.callcenter.queue import Queue
 from cloud.fs.models import CallResult, DatumResult
 from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.redis import call, monitor
+
+logger = logging.getLogger('logs')
 
 
 class cdrHandle:
@@ -70,6 +74,7 @@ class cdrHandle:
             self.generate_profile()
         except Exception as e:
             print(e)
+            logger.error(traceback.format_exc())
             self.xml = None
         finally:
             if self.result_id and self.project_id:
@@ -200,6 +205,7 @@ class cdrHandle:
             ])
 
         except Exception as e:
+            logger.error(traceback.format_exc())
             raise e
 
     def save_callresult(self, datum):
@@ -230,6 +236,7 @@ class cdrHandle:
             )
             result.save()
         except Exception as e:
+            logger.error(traceback.format_exc())
             print(e)
 
 
@@ -247,6 +254,7 @@ class CdrViews(APIView):
             if handle.result_id and handle.project_id:
                 handle.save_result()
         except Exception as e:
+            logger.error(traceback.format_exc())
             print(e)
             saveLog(cdr, a_uuid)
 

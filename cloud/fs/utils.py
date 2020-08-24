@@ -1,16 +1,26 @@
+import logging
+import traceback
+
 try:
     import ESL
 except Exception:
     pass
 
+logger = logging.getLogger('logs')
+
+
+class ESLConnException(Exception):
+    pass
+
 
 def get_connection(ip, port, passwd):
-    assert ESL, "No module named 'ESL'"
-    con = ESL.ESLconnection(ip, port, passwd)
-    if not con.connected():
-        return None
-    print('FreeSWITCH is Connection')
-    return con
+    try:
+        assert ESL, "No module named 'ESL'"
+        con = ESL.ESLconnection(ip, port, passwd)
+        return con
+    except Exception:
+        logger.error(traceback.format_exc(limit=None))
+        raise ESLConnException()
 
 
 def encrypt_mobile(mobile):

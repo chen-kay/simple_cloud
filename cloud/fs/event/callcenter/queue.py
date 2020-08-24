@@ -1,16 +1,15 @@
-# from cloud.fs.event import base
-from cloud.fs.event.esl import esl_event
+from cloud.fs.event.api import ApiEvent
 
 
-class Queue(object):
+class Queue(ApiEvent):
     def load(self, queue_name):
         '''加载
         '''
-        msg = "callcenter_config queue load {0}".format(queue_name)
-        return esl_event.send(msg)
+        msg = "bgapi callcenter_config queue load {0}".format(queue_name)
+        return self.send(msg)
 
     def unload(self, queue_name):
         '''卸载
         '''
-        msg = "callcenter_config queue unload {0}".format(queue_name)
-        return esl_event.send(msg)
+        msg = "bgapi callcenter_config queue unload {0}".format(queue_name)
+        return self.send(msg)

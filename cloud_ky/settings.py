@@ -15,6 +15,7 @@ import os
 import environ
 
 env = environ.Env()
+# env = ENV
 env.read_env('envs/%s.env' % os.getenv('DJANGO_ENV', 'local'))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -38,6 +39,71 @@ CACHES = {'default': env.cache()}
 
 DATABASES = {'default': env.db()}
 
+BASE_LOG_DIR = os.path.join(BASE_DIR, "logs")
+LOGGING = {
+    # version 值只能为1
+    'version': 1,
+    # True 表示禁用loggers
+    'disable_existing_loggers': False,
+    # < 格式化 >
+    'formatters': {
+        # 详细的日志格式
+        'standard': {
+            'format':
+            '[%(asctime)s][%(threadName)s:%(thread)d][task_id:%(name)s][%(filename)s:%(lineno)d]' # noqa
+            '[%(levelname)s][%(message)s]'
+        },
+        # 简单的日志格式
+        'simple': {
+            'format':
+            '[%(levelname)s][%(asctime)s][%(filename)s:%(lineno)d]%(message)s'
+        },
+    },
+    # 过滤器
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    # < 处理信息 >
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],  # 只有在Django debug为True时才在屏幕打印日志
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        # 默认的
+        'default': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',  # 保存到文件，自动切
+            'filename': os.path.join(BASE_LOG_DIR, "info.log"),  # 日志文件
+            'maxBytes': 1024 * 1024 * 50,  # 日志大小 50M
+            'backupCount': 3,  # 最多备份几个
+            'formatter': 'standard',
+            'encoding': 'utf-8',
+        },
+        # 专门用来记错误日志
+        'error': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',  # 保存到文件，自动切
+            'filename': os.path.join(BASE_LOG_DIR, "error.log"),  # 日志文件
+            'maxBytes': 1024 * 1024 * 50,  # 日志大小 50M
+            'backupCount': 5,
+            'formatter': 'standard',
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        # 默认的logger应用如下配置
+        'logs': {
+            'handlers': ['default', 'console', 'error'],  # 上线之后可以把'console'移除
+            'level': 'DEBUG',
+            'propagate': True,  # 向不向更高级别的logger传递
+        },
+    },
+}
+
 FS_FRAMEWORK = {
     'DEFAULT_EXT_SIP_IP': env.str('DEFAULT_EXT_SIP_IP', 'auto-nat'),
     'DEFAULT_EXT_RTP_IP': env.str('DEFAULT_EXT_RTP_IP', 'auto-nat'),
@@ -45,6 +111,9 @@ FS_FRAMEWORK = {
     'DEFAULT_EXTERNAL_SIP_PORT': env.str('DEFAULT_EXTERNAL_SIP_PORT', '5080'),
     'DEFAULT_WS_BINDING': env.str('DEFAULT_WS_BINDING', '5066'),
     'DEFAULT_WSS_BINDING': env.str('DEFAULT_WSS_BINDING', '7443'),
+    'DEFAULT_LISTEN_PORT': env.str('DEFAULT_LISTEN_PORT', '8021'),
+    'DEFAULT_EVENT_IP': env.str('DEFAULT_EVENT_IP', '192.168.66.111'),
+    'DEFAULT_EVENT_PORT': env.str('DEFAULT_EVENT_PORT', '8021'),
 }
 
 # Application definition
@@ -111,7 +180,7 @@ WSGI_APPLICATION = 'cloud_ky.wsgi.application'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME':
-        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', # noqa
     },
     {
         'NAME':

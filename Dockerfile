@@ -3,7 +3,7 @@ FROM python:3
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update
-RUN apt-get install -y swig
+RUN apt-get install -y swig vim
 RUN mkdir /home/docker/simple_cloud -p
 RUN mkdir /home/docker/simple_cloud/run -p
 RUN mkdir /home/docker/simple_cloud/logs -p

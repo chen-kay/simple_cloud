@@ -1,10 +1,9 @@
-# from cloud.fs.event import base
-from cloud.fs.event.esl import esl_event
+from cloud.fs.event.api import ApiEvent
 
 
-class Tier(object):
+class Tier(ApiEvent):
     def get_list(self):
         """列表
         """
         msg = "callcenter_config tier list"
-        return esl_event.send(msg)
+        return self.send(msg)

@@ -1,8 +1,12 @@
-﻿import threading
+﻿import logging
+import threading
+import traceback
 from time import sleep
 
-from cloud.fs.event.esl import ESLEvent
+from cloud.fs.event.base import BaseEvent, ESLConnException
 from cloud.fs.redis import call
+
+logger = logging.getLogger('logs')
 
 
 class Status(threading.Thread):
@@ -10,17 +14,32 @@ class Status(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self, daemon=True)
-        self.conn = ESLEvent()
 
     def run(self):
         print('Thread Status starting.')
         while True:
             try:
-                self.conn.events_channels(self.handle_channels)
-            except Exception as e:
-                print(e)
-            sleep(10)
+                conn = BaseEvent().get_connection()
+                self.handle_event(conn)
+            except ESLConnException:
+                print('FreeSWITCH Connecting Error')
+            except Exception:
+                logger.error(traceback.format_exc())
+            sleep(5)
         print('Thread Status stoped.')
+
+    def handle_event(self, conn):
+        events = 'CHANNEL_CREATE CHANNEL_ANSWER CHANNEL_BRIDGE CHANNEL_HANGUP CHANNEL_DESTROY'  # noqa
+        print('connected', conn.connected())
+        if conn:
+            conn.events("plain", events)
+            self.start_listen_event(conn)
+
+    def start_listen_event(self, conn):
+        while True:
+            e = conn.recvEvent()
+            if e:
+                self.handle_channels(e)
 
     def handle_channels(self, e):
         event_name = e.getHeader('Event-Name')

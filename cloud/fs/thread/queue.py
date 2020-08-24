@@ -4,7 +4,7 @@ from time import sleep
 from django.db.models import F
 
 from cloud.fs.event import utils
-from cloud.fs.models import DatumResult, HujiaoProject, HujiaoMeans
+from cloud.fs.models import DatumResult, HujiaoMeans, HujiaoProject
 from cloud.fs.models import ServiceBackends as _backends
 from cloud.fs.settings import fs_settings
 
@@ -43,10 +43,6 @@ class Queue(threading.Thread):
             4. 提取号码
             5. 外呼
             '''
-            conn = self.handle.conn
-            if not conn.connected():
-                self.handle.re_connection()
-                continue
             self.get_project_info()
             # if not self.execting:
             #     break

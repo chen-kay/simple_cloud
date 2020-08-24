@@ -1,4 +1,5 @@
 from cloud.fs.conf.base import BaseXml
+from cloud.fs.settings import fs_settings
 from freeswitch.configuration import Section
 from freeswitch.configuration.param import Param
 
@@ -15,7 +16,7 @@ class EventSocket(BaseXml):
         return (
             ('nat-map', False),
             ('listen-ip', '0.0.0.0'),
-            ('listen-port', '8021'),
+            ('listen-port', fs_settings.DEFAULT_LISTEN_PORT),
             ('apply-inbound-acl', 'lan'),
             ('password', 'ClueCon'),
         )
