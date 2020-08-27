@@ -76,9 +76,11 @@ class cdrHandle:
             print(e)
             logger.error(traceback.format_exc())
             self.xml = None
+            saveLog(data, uuid)
         finally:
             if self.result_id and self.project_id:
                 monitor.on_end(self.project_id, self.status)
+                call.clear_redis(self.project_id, self.result_id)
 
     def generate_time(self):
         self.duration = self.get_variables('duration')
@@ -256,7 +258,6 @@ class CdrViews(APIView):
         except Exception as e:
             logger.error(traceback.format_exc())
             print(e)
-            saveLog(cdr, a_uuid)
 
         return Response()
 
