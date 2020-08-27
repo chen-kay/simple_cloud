@@ -72,7 +72,7 @@ class MonitorRedis(BaseRedis):
 
     def remove_val(self, key):
         raw = self.redis.lindex(key, index=0)
-        if int(raw) < int(time.time()) - self.expired_time:
+        if raw and (int(raw) < int(time.time()) - self.expired_time):
             self.redis.lpop(key)
             self.remove_val(key)
         return
