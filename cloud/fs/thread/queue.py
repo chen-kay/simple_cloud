@@ -20,11 +20,6 @@ class Queue(threading.Thread):
         self.handle = utils.Utils()
         threading.Thread.__init__(self, daemon=True)
 
-        try:
-            self.hujiao_project = HujiaoProject.objects.get(id=self.project_id)
-        except Exception:
-            self.hujiao_project = None
-
     @property
     def queue_name(self):
         return '{0}_{1}'.format(self.domain, self.project_id)
@@ -142,16 +137,15 @@ class Queue(threading.Thread):
         剩余资料数-1
         """
         try:
-            if self.hujiao_project:
-                self.hujiao_project.surplus_nums = F('surplus_nums') - 1
-                self.hujiao_project.save(update_fields=['surplus_nums'])
+            hujiao_project = HujiaoProject.objects.get(id=self.project_id)
+            hujiao_project.surplus_nums = F('surplus_nums') - 1
+            hujiao_project.save(update_fields=['surplus_nums'])
         except Exception:
             pass
 
     def diff_means_num(self, ziliao):
         try:
             hujiao_means = HujiaoMeans.objects.get(id=ziliao)
-            print(hujiao_means)
             hujiao_means.live_no = F('live_no') - 1
             hujiao_means.save(update_fields=['live_no'])
         except Exception:
