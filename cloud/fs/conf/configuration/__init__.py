@@ -9,7 +9,7 @@ from .xml_cdr import XmlCdr
 
 
 class Configuration(BaseXml):
-    acl = Acl
+    # acl = Acl
     event_socket = EventSocket
     xml_cdr = XmlCdr
     callcenter = Callcenter

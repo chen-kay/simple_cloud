@@ -59,4 +59,6 @@ internal_settings = {
     'ws-binding': ':5066',
     'wss-binding': ':7443',
     'challenge-realm': 'auto_from',
+    'apply-nat-acl': 'nat.auto',
+    # 'local-network-acl': 'lan',
 }
