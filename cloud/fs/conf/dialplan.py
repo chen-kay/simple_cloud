@@ -52,6 +52,9 @@ class Dialplan(BaseXml):
             if proId:
                 # mobile_id, mobile = _backends.service_extract_datum(proId)  # 获取真实被叫
                 caller = '{0}_{1}'.format(context, proId)  # 设置主叫为 域名 + 业务id
+                info = _backends.service_get_project(proId)
+                if info:
+                    caller = info.get('category_name', None) or caller
             # if not mobile_id or not mobile:
             #     return self.hangup(context)
             return [

@@ -6,6 +6,7 @@ from django.db.models import F
 from cloud.fs.event import utils
 from cloud.fs.models import DatumResult, HujiaoMeans, HujiaoProject
 from cloud.fs.models import ServiceBackends as _backends
+from cloud.fs.redis import call
 from cloud.fs.settings import fs_settings
 
 
@@ -16,16 +17,15 @@ class Queue(threading.Thread):
         self.domain = domain
         self.project_id = project_id
         self.company_id = None
+        self.caller = '{0}_{1}'.format(self.domain, self.project_id)
+
+        call.clear_project(project_id)
 
         self.handle = utils.Utils()
         threading.Thread.__init__(self, daemon=True)
 
     @property
     def queue_name(self):
-        return '{0}_{1}'.format(self.domain, self.project_id)
-
-    @property
-    def caller(self):
         return '{0}_{1}'.format(self.domain, self.project_id)
 
     def run(self):
@@ -79,6 +79,7 @@ class Queue(threading.Thread):
         self.ratio = float(ratio) if ratio else 0
         self.status = info.get('status', None)
         self.company_id = info.get('company_id', None)
+        self.caller = info.get('category_name', None) or self.caller  # 设置项目主叫
 
     def get_sys_gateway(self):
         '''获取网关信息

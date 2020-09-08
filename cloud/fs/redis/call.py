@@ -69,10 +69,17 @@ class CallRedis(BaseRedis):
         self.srem_answer(project_id, phone_id)
         self.srem_queue(project_id, phone_id)
 
+    def clear_project(self, project_id):
+        """清楚项目redis
+        """
+        self._clear_cache(self.ring.format(project_id=project_id))
+        self._clear_cache(self.queue.format(project_id=project_id))
+        self._clear_cache(self.answer.format(project_id=project_id))
+
     def clear_all(self):
-        self._clear_cache(self.ring.format(project_id='*'))
-        self._clear_cache(self.queue.format(project_id='*'))
-        self._clear_cache(self.answer.format(project_id='*'))
+        """清楚所有redis
+        """
+        self.clear_project('*')
 
     def _clear_cache(self, name):
         for key in self.redis.scan_iter(name):
