@@ -115,7 +115,7 @@ class ServiceBackend:
         queue = self.call.get_queue(project_id)
         answer = self.call.get_answer(project_id)
         sign_in = self.user.get_sign_in(project_id)
-        print(ring, queue, answer, sign_in, callmax, ratio)
+        print('project:{0} ring:{1} queue:{2} answer:{3} sign_in:{4} callmax:{5} ratio:{6}'.format(project_id, ring, queue, answer, sign_in, callmax, ratio))
         return self._compute_call_nums(ring=ring,
                                        queue=queue,
                                        answer=answer,
