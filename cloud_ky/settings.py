@@ -114,6 +114,7 @@ FS_FRAMEWORK = {
     'DEFAULT_LISTEN_PORT': env.str('DEFAULT_LISTEN_PORT', '8021'),
     'DEFAULT_EVENT_IP': env.str('DEFAULT_EVENT_IP', '192.168.66.111'),
     'DEFAULT_EVENT_PORT': env.str('DEFAULT_EVENT_PORT', '8021'),
+    'DEFAULT_RECORDING_PATH': env.str('DEFAULT_RECORDING_PATH', '/home'),
 }
 
 # Application definition
