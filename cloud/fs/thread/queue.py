@@ -39,8 +39,8 @@ class Queue(threading.Thread):
             5. 外呼
             '''
             self.get_project_info()
-            # if not self.execting:
-            #     break
+            if not self.execting:
+                break
             self.get_sys_gateway()
             out_nums = self.compute_out_nums()
             if not out_nums:
